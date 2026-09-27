@@ -5,6 +5,7 @@ const GITHUB_USER = "nar1sos";
 const GITHUB_REPO = "realdemonlist";
 const GITHUB_BRANCH = "main";
 const GITHUB_FILE_PATH = "data/_list.json";
+const GITHUB_PLAYERS_PATH = "data/_leaderboard.json"; // Твой файл лидерборда
 
 function utf8ToBase64(str) {
     const bytes = new TextEncoder().encode(str);
@@ -35,16 +36,6 @@ function extractYouTubeId(urlOrId) {
     return str;
 }
 
-// Преобразование кода страны (RU, US, UA и т.д.) в флаг Emoji
-function getCountryFlag(countryCode) {
-    if (!countryCode || countryCode.length !== 2) return '🌐';
-    const codePoints = countryCode
-        .toUpperCase()
-        .split('')
-        .map(char => 127397 + char.charCodeAt(0));
-    return String.fromCodePoint(...codePoints);
-}
-
 export default {
     components: { Spinner },
     template: `
@@ -52,7 +43,7 @@ export default {
             <Spinner v-if="loading" />
 
             <template v-else>
-                <!-- 1. ПОИСКОВКА И КНОПКА СОХРАНЕНИЯ -->
+                <!-- 1. ПОИСК И КНОПКА СОХРАНЕНИЯ -->
                 <div class="gdl-search-bar" style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
                     <div class="search-input-wrapper" style="flex: 1;">
                         <input 
@@ -149,7 +140,7 @@ export default {
                         </div>
                     </div>
 
-                    <!-- ПРАВАЯ КОЛОНКА (ПЛАШКА С ИНФОРМАЦИЕЙ И ВИКТОРАМИ) -->
+                    <!-- ПРАВАЯ КОЛОНКА (ИНФОРМАЦИЯ И АВТО-ВИКТОРЫ) -->
                     <div class="gdl-details-container">
                         <div v-if="selectedLevel" class="gdl-level-detail-box">
                             
@@ -163,7 +154,7 @@ export default {
                                 ></iframe>
                             </div>
 
-                            <!-- Шапка с информацией о уровне -->
+                            <!-- Информация об уровне -->
                             <div style="margin-top: 15px;">
                                 <h2 style="font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 4px;">
                                     #{{ selectedLevel.rank }} - {{ selectedLevel.name }}
@@ -179,7 +170,7 @@ export default {
                                 </p>
                             </div>
 
-                            <!-- Админские кнопки редактирования/удаления -->
+                            <!-- Управление (Админ) -->
                             <div v-if="isAdmin" style="display: flex; gap: 8px; margin-top: 12px;">
                                 <button @click="openEditModal(selectedLevel)" style="flex:1; padding: 6px 12px; background: #3b82f6; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 12px;">
                                     ✏️ Изменить
@@ -191,7 +182,7 @@ export default {
 
                             <hr style="border: 0; border-top: 1px solid #283044; margin: 18px 0;" />
 
-                            <!-- СЕКЦИЯ ВИКТОРОВ (ПРОШДШИХ УРОВЕНЬ) -->
+                            <!-- СЕКЦИЯ ВИКТОРОВ (АВТОМАТИЧЕСКИ ИЗ _leaderboard.json) -->
                             <div class="victors-section">
                                 <h3 style="font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
                                     <span>🏆 Викторы</span>
@@ -207,15 +198,20 @@ export default {
                                         style="display: flex; align-items: center; justify-content: space-between; background: #111827; padding: 8px 12px; border-radius: 8px; border: 1px solid #1f2937;"
                                     >
                                         <div style="display: flex; align-items: center; gap: 10px;">
-                                            <span style="font-size: 16px;">{{ getFlag(victor.country) }}</span>
-                                            <span style="color: #f3f4f6; font-weight: 600; font-size: 14px;">{{ victor.user || victor.name || victor.player }}</span>
+                                            <!-- Картинка флага из country -->
+                                            <img 
+                                                v-if="isUrl(victor.country)" 
+                                                :src="victor.country" 
+                                                alt="flag" 
+                                                style="width: 20px; height: 14px; object-fit: cover; border-radius: 2px;"
+                                            />
+                                            <span v-else style="font-size: 16px;">🌐</span>
+
+                                            <span style="color: #f3f4f6; font-weight: 600; font-size: 14px;">{{ victor.name }}</span>
                                         </div>
 
                                         <div style="display: flex; align-items: center; gap: 8px;">
-                                            <span style="color: #22c55e; font-weight: 800; font-size: 13px;">{{ victor.percent || 100 }}%</span>
-                                            <a v-if="victor.link || victor.hz" :href="victor.link" target="_blank" style="color: #38bdf8; text-decoration: none; font-size: 12px;">
-                                                🔗 {{ victor.hz ? victor.hz + 'Hz' : 'Видео' }}
-                                            </a>
+                                            <span style="color: #22c55e; font-weight: 800; font-size: 13px;">100%</span>
                                         </div>
                                     </div>
                                 </div>
@@ -227,7 +223,6 @@ export default {
 
                         </div>
 
-                        <!-- Заглушка, если уровень не выбран -->
                         <div v-else class="gdl-level-detail-box" style="display: flex; align-items: center; justify-content: center; min-height: 300px; color: #64748b;">
                             Выберите уровень для просмотра информации
                         </div>
@@ -236,7 +231,7 @@ export default {
                 </div>
             </template>
 
-            <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ/ДОБАВЛЕНИЯ -->
+            <!-- МОДАЛЬНОЕ ОКНО -->
             <div v-if="showLevelModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;" @click.self="showLevelModal = false">
                 <div style="background: #161b26; border: 1px solid #283044; padding: 24px; border-radius: 12px; width: 100%; max-width: 450px; color: #fff;">
                     <h3 style="margin-bottom: 15px;">{{ isEditing ? 'Редактировать уровень' : 'Добавить новый уровень' }}</h3>
@@ -268,6 +263,7 @@ export default {
     data: () => ({
         GITHUB_USER,
         list: [],
+        players: [], // Массив игроков из _leaderboard.json
         loading: true,
         selectedLevel: null,
         searchQuery: '',
@@ -291,15 +287,47 @@ export default {
             );
         },
 
-        // Берем список викторов выбранного уровня
+        // ДИНАМИЧЕСКИЙ ПОИСК ВИКТОРОВ ИЗ _leaderboard.json
         levelVictors() {
             if (!this.selectedLevel) return [];
             
-            // Проверяем, есть ли поле records или victors у уровня
-            const records = this.selectedLevel.records || this.selectedLevel.victors || [];
-            
-            // Сортируем: 100% выше, чем остальные проценты
-            return [...records].sort((a, b) => (b.percent || 100) - (a.percent || 100));
+            // 1. Проверяем локальные records в самом объекте уровня в _list.json
+            const directRecords = this.selectedLevel.records || this.selectedLevel.victors || [];
+            if (directRecords.length > 0) {
+                return directRecords.map(r => ({
+                    name: r.user || r.name || r.player || 'Unknown',
+                    country: r.country || '',
+                    percent: r.percent || 100
+                }));
+            }
+
+            // 2. Поиск среди игроков из _leaderboard.json
+            const matchedVictors = [];
+            const currentLevelName = this.selectedLevel.name.toLowerCase().trim();
+
+            this.players.forEach(player => {
+                const playerRecords = player.records || [];
+                
+                // Массив records состоит из строк c названиями уровней
+                const hasBeatenLevel = playerRecords.some(rec => {
+                    if (typeof rec === 'string') {
+                        return rec.toLowerCase().trim() === currentLevelName;
+                    } else if (typeof rec === 'object' && rec !== null) {
+                        const lvlName = rec.name || rec.level || '';
+                        return lvlName.toLowerCase().trim() === currentLevelName;
+                    }
+                    return false;
+                });
+
+                if (hasBeatenLevel) {
+                    matchedVictors.push({
+                        name: player.user || player.name || 'Unknown',
+                        country: player.country || ''
+                    });
+                }
+            });
+
+            return matchedVictors;
         }
     },
 
@@ -315,12 +343,10 @@ export default {
     methods: {
         extractYouTubeId,
         
-        // Преобразование кода страны в флаг
-        getFlag(countryCode) {
-            return getCountryFlag(countryCode);
+        isUrl(str) {
+            return typeof str === 'string' && (str.startsWith('http://') || str.startsWith('https://'));
         },
 
-        // Открытие информации в ПРАВОЙ ПЛАШКЕ
         openLevel(level) {
             if (!level) return;
             this.selectedLevel = level;
@@ -344,10 +370,10 @@ export default {
 
         async loadAllData() {
             try {
+                // 1. Загрузка списка уровней (_list.json)
                 let loadedList = [];
                 try {
                     let resList = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}?ref=${GITHUB_BRANCH}`);
-                    
                     if (resList.ok) {
                         const data = await resList.json();
                         this.fileSha = data.sha;
@@ -355,7 +381,7 @@ export default {
                         loadedList = JSON.parse(decodedContent);
                     }
                 } catch (err) {
-                    console.warn("GitHub fetch error:", err);
+                    console.warn("GitHub list fetch error:", err);
                 }
 
                 if (!loadedList || loadedList.length === 0) {
@@ -376,7 +402,18 @@ export default {
                     this.list = [];
                 }
 
-                // По умолчанию выбираем первый уровень в списке
+                // 2. Загрузка лидерборда (_leaderboard.json)
+                try {
+                    let resPlayers = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_PLAYERS_PATH}?ref=${GITHUB_BRANCH}`);
+                    if (resPlayers.ok) {
+                        const pData = await resPlayers.json();
+                        const decodedPlayers = base64ToUtf8(pData.content);
+                        this.players = JSON.parse(decodedPlayers);
+                    }
+                } catch (err) {
+                    console.warn("GitHub leaderboard fetch error:", err);
+                }
+
                 if (this.list.length > 0 && !this.selectedLevel) {
                     this.selectedLevel = this.list[0];
                 }
