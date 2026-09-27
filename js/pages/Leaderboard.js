@@ -99,6 +99,7 @@ export default {
                     </div>
                 </div>
 
+                <!-- MAIN LEVELS (БЕЗ НАДПИСИ +PT) -->
                 <div class="section-box" v-if="mainLevelsList.length || isAdmin">
                     <div class="box-header">
                         <div class="box-title red-title">
@@ -123,12 +124,12 @@ export default {
                             style="display: inline-flex; align-items: center; gap: 6px;"
                         >
                             <span>{{ item.title }}</span>
-                            <span style="font-size: 10px; opacity: 0.7; color: #f59e0b;">+{{ getLevelPoints(item.title) }}pt</span>
                             <button v-if="isAdmin" @click.stop="deleteRecord(item.originalIndex)" style="background: none; border: none; color: #ef4444; font-weight: 900; cursor: pointer; padding: 0;">×</button>
                         </div>
                     </div>
                 </div>
 
+                <!-- PROGRESSES (БЕЗ НАДПИСИ +PT) -->
                 <div class="section-box" v-if="progressesList.length">
                     <div class="box-header">
                         <div class="box-title blue-title">
@@ -147,12 +148,12 @@ export default {
                             @drop="onRecordDrop($event, prog.originalIndex)"
                         >
                             {{ prog.item.levelName || prog.item.level || prog.item }} <span v-if="prog.item.percent" class="blue-text">({{ prog.item.percent }}%)</span>
-                            <span style="font-size: 10px; opacity: 0.7; color: #60a5fa; margin-left: 4px;">+{{ getProgressPoints(prog.item) }}pt</span>
                             <button v-if="isAdmin" @click.stop="deleteRecord(prog.originalIndex)" style="background: none; border: none; color: #ef4444; font-weight: 900; cursor: pointer; padding: 0; margin-left: 4px;">×</button>
                         </div>
                     </div>
                 </div>
 
+                <!-- VERIFIED (БЕЗ НАДПИСИ +PT) -->
                 <div class="section-box verified-box" v-if="verifiedLevelsList.length || isAdmin">
                     <div class="box-header">
                         <div class="box-title green-title">
@@ -177,7 +178,6 @@ export default {
                             style="display: inline-flex; align-items: center; gap: 6px;"
                         >
                             <span>{{ ver.title }}</span>
-                            <span style="font-size: 10px; opacity: 0.7; color: #10b981;">+{{ getLevelPoints(ver.title) }}pt</span>
                             <button v-if="isAdmin" @click.stop="deleteVerify(idx)" style="background: none; border: none; color: #ef4444; font-weight: 900; cursor: pointer; padding: 0;">×</button>
                         </div>
                     </div>
@@ -214,14 +214,13 @@ export default {
                         <span class="username">{{ player.user || player.name }}</span>
                     </div>
 
-                    <!-- ОЧКИ ИГРОКА В СПИСКЕ -->
                     <span style="font-size: 12px; font-weight: 700; color: #f59e0b; background: rgba(245, 158, 11, 0.1); padding: 2px 8px; border-radius: 12px; margin-left: auto;">
                         {{ getPlayerPoints(player) }} pt
                     </span>
                 </div>
             </div>
 
-            <!-- МОДАЛКА: ИГРОК -->
+            <!-- МОДАЛКА ИГРОКА -->
             <div v-if="showPlayerModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;" @click.self="showPlayerModal = false">
                 <div style="background: #161b26; border: 1px solid #283044; padding: 24px; border-radius: 12px; width: 100%; max-width: 400px; color: #fff;">
                     <h3 style="margin-bottom: 15px;">{{ isEditing ? 'Редактировать игрока' : 'Добавить игрока' }}</h3>
@@ -242,7 +241,7 @@ export default {
                 </div>
             </div>
 
-            <!-- МОДАЛКА: МНОЖЕСТВЕННЫЙ ВЫБОР РЕКОРДОВ -->
+            <!-- МОДАЛКА РЕКОРДОВ -->
             <div v-if="showRecordModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 9999;" @click.self="showRecordModal = false">
                 <div style="background: #161b26; border: 1px solid #283044; padding: 20px; border-radius: 12px; width: 100%; max-width: 520px; max-height: 85vh; display: flex; flex-direction: column; color: #fff;">
                     <h3 style="margin-bottom: 10px;">Добавить демоны в профиль</h3>
@@ -301,7 +300,7 @@ export default {
                 </div>
             </div>
 
-            <!-- МОДАЛКА: МНОЖЕСТВЕННЫЙ ВЫБОР ВЕРИФИКАЦИЙ -->
+            <!-- МОДАЛКА ВЕРИФИКАЦИЙ -->
             <div v-if="showVerifyModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 9999;" @click.self="showVerifyModal = false">
                 <div style="background: #161b26; border: 1px solid #283044; padding: 20px; border-radius: 12px; width: 100%; max-width: 520px; max-height: 85vh; display: flex; flex-direction: column; color: #fff;">
                     <h3 style="margin-bottom: 10px;">Добавить верификации</h3>
@@ -376,17 +375,12 @@ export default {
     }),
 
     computed: {
-        // Автоматическая сортировка игроков по очкам (по убыванию)
         sortedPlayers() {
             let list = [...this.leaderboard];
-            
-            // Фильтрация при поиске
             if (this.searchQuery) {
                 const q = this.searchQuery.toLowerCase();
                 list = list.filter(p => (p.user || p.name || '').toLowerCase().includes(q));
             }
-
-            // Сортировка по баллам
             return list.sort((a, b) => this.getPlayerPoints(b) - this.getPlayerPoints(a));
         },
         filteredDemonList() {
@@ -440,17 +434,21 @@ export default {
             this.isAdmin = sessionStorage.getItem('is_admin') === 'true';
         },
 
-        // --- ЛОГИКА РАСЧЕТА ПОИНТОВ ---
+        // --- НОВАЯ ФОРМУЛА РАСЧЕТА (ОТ 1000 ДО 0.67 ПОИНТОВ) ---
         getLevelPoints(levelName) {
             if (!this.demonList.length || !levelName) return 0;
             const rankIndex = this.demonList.findIndex(name => name.toLowerCase() === String(levelName).toLowerCase());
             if (rankIndex === -1) return 0;
 
-            const total = this.demonList.length;
-            // Формула: #1 уровень даёт 100pt, последний дает пропорционально меньше (минимум 1pt)
-            // (при желании можно заменить на формулу Pointercrate)
-            const pts = Math.round(100 * (1 - rankIndex / total));
-            return Math.max(pts, 1);
+            const N = this.demonList.length;
+            if (N === 1) return 1000;
+
+            const maxPts = 1000;
+            const minPts = 0.67;
+
+            // Линейная интерполяция от maxPts (#1) до minPts (последнее место)
+            const pts = maxPts - (rankIndex / (N - 1)) * (maxPts - minPts);
+            return parseFloat(pts.toFixed(2));
         },
 
         getProgressPoints(recordObj) {
@@ -460,15 +458,13 @@ export default {
             const percent = recordObj.percent || 100;
 
             if (percent >= 100) return fullPoints;
-            // Дробные очки за процент
-            return Math.round((fullPoints * (percent / 100)) * 0.5); // 50% от стоимости уровня
+            return parseFloat(((fullPoints * (percent / 100)) * 0.5).toFixed(2));
         },
 
         getPlayerPoints(player) {
             if (!player) return 0;
             let total = 0;
 
-            // Пройденные уровни и прогрессы
             if (Array.isArray(player.records)) {
                 player.records.forEach(r => {
                     if (typeof r === 'string') {
@@ -479,7 +475,6 @@ export default {
                 });
             }
 
-            // Верификации (дают столько же очков, сколько и прохождение)
             const verifies = player.verified || player.verifies || [];
             if (Array.isArray(verifies)) {
                 verifies.forEach(v => {
@@ -488,7 +483,7 @@ export default {
                 });
             }
 
-            return total;
+            return parseFloat(total.toFixed(2));
         },
 
         async loadLeaderboardData() {
