@@ -256,13 +256,18 @@ export default {
     },
 
     methods: {
-        // Расчет поинтов в зависимости от ранга уровня (#1, #2 и т.д.)
+        // Расчет очков: Топ-1 = 1000pt, Самый последний в списке = 0.67pt
         getPoints(rank) {
             if (!rank || rank <= 0) return 0;
-            // Формула: Top-1 дает 100pt, а дальше с каждым местом меньше (минимум 1pt)
-            // Можешь поменять формулу под нужный вам баланс
-            const score = 100 - (rank - 1) * 1.5;
-            return Math.max(1, Math.round(score * 10) / 10);
+            const maxPoints = 1000;
+            const minPoints = 0.67;
+            const totalLevels = this.list.length || 1;
+
+            if (totalLevels === 1) return maxPoints;
+
+            // Линейная интерполяция от #1 (1000pt) до последнего уровня (0.67pt)
+            const score = maxPoints - (rank - 1) * ((maxPoints - minPoints) / (totalLevels - 1));
+            return Math.round(score * 100) / 100;
         },
 
         parseYtId(input) {
