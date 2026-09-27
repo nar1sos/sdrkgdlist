@@ -83,14 +83,15 @@ export default {
                         <div class="gdl-meta-box">
                             <h3>Редакторы списка</h3>
                             <ul class="editors-list">
-                                <li><span>👑</span> {{ GITHUB_USER }}</li>
+                                <li><span>👑</span> NaR1</li>
+                                <li><span>🛡️</span> ThisIsTriskis</li>
+                                <li><span>🛡️</span> itslafy</li>
                             </ul>
                             
                             <div class="rules-section">
                                 <h3>Правила</h3>
                                 <ul class="rules-list">
-                                    <li><strong>1.</strong> Запись видео с кликами обязательна.</li>
-                                    <li><strong>2.</strong> Читы и хаки строго запрещены.</li>
+                                    <li><strong>1.</strong> Принимаются только рекорды из глобал демон листа</li>
                                 </ul>
                             </div>
                         </div>
@@ -128,6 +129,12 @@ export default {
                                 <div class="card-authors">
                                     от <span>{{ level.author }}</span>
                                 </div>
+                                
+                                <!-- ОТОБРАЖЕНИЕ ПОИНТОВ В КАРТОЧКЕ -->
+                                <div class="level-points" style="font-size: 13px; font-weight: 700; color: #38bdf8; margin-top: 4px;">
+                                    🏆 {{ getPoints(level.rank) }} pt
+                                </div>
+
                                 <div class="verifier-name" v-if="level.verifier">
                                     Верификатор: {{ level.verifier }}
                                 </div>
@@ -148,6 +155,14 @@ export default {
                                 <div class="author-item" v-if="selectedLevel.verifier">
                                     <span class="author-label">Верификатор</span>
                                     <span class="author-val">{{ selectedLevel.verifier }}</span>
+                                </div>
+                                
+                                <!-- ОТОБРАЖЕНИЕ ПОИНТОВ В ДЕТАЛЯХ УРОВНЯ -->
+                                <div class="author-item">
+                                    <span class="author-label">Очки за прохождение</span>
+                                    <span class="author-val" style="color: #38bdf8; font-weight: 800;">
+                                        {{ getPoints(selectedLevel.rank) }} pt
+                                    </span>
                                 </div>
                             </div>
 
@@ -241,6 +256,15 @@ export default {
     },
 
     methods: {
+        // Расчет поинтов в зависимости от ранга уровня (#1, #2 и т.д.)
+        getPoints(rank) {
+            if (!rank || rank <= 0) return 0;
+            // Формула: Top-1 дает 100pt, а дальше с каждым местом меньше (минимум 1pt)
+            // Можешь поменять формулу под нужный вам баланс
+            const score = 100 - (rank - 1) * 1.5;
+            return Math.max(1, Math.round(score * 10) / 10);
+        },
+
         parseYtId(input) {
             return extractYouTubeId(input);
         },
