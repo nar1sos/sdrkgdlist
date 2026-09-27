@@ -88,5 +88,23 @@
         "thumbnail": "",
         "percentToQualify": 100,
         "records": []
+    },
+    {
+        "name": " Lithium",
+        "author": "L4TeZk",
+        "verifier": "kloone",
+        "ytid": "mvBPeefG-a0",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Renevant",
+        "author": "nikroplays",
+        "verifier": "rori",
+        "ytid": "7WUoccVY62c",
+        "thumbnail": "https://i.ytimg.com/vi/nbqNt0-MTpk/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLBGnJ0-I9WTYAibWxkRRM-W_cfwDg",
+        "percentToQualify": 100,
+        "records": []
     }
 ]
