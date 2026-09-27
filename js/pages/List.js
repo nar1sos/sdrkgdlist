@@ -107,7 +107,6 @@ export default {
                             v-for="(level, index) in filteredList" 
                             :key="level.name + index"
                             class="gdl-level-card"
-                            :class="{ active: selectedLevel && selectedLevel.name === level.name }"
                             @click="openLevel(level)"
                             :draggable="isAdmin && !searchQuery"
                             @dragstart="onDragStart($event, index)"
@@ -139,7 +138,7 @@ export default {
                         </div>
                     </div>
 
-                    <!-- ПРАВАЯ КОЛОНКА (Оставлена пустой плашкой) -->
+                    <!-- ПРАВАЯ КОЛОНКА -->
                     <div class="gdl-details-container">
                         <div class="gdl-level-detail-box" style="min-height: 250px;">
                             <!-- Пустая плашка -->
@@ -215,16 +214,25 @@ export default {
     },
 
     methods: {
-        // Переход на страницу уровня
+        // Переход на страницу уровня Level.js
         openLevel(level) {
-            this.selectedLevel = level;
-            const levelName = typeof level === 'string' ? level : level.name;
+            if (!level) return;
+            const levelIdentifier = level.name || level.id;
+
             if (this.$router) {
-                this.$router.push({ name: 'level', params: { name: levelName } });
+                this.$router.push({ 
+                    path: `/level/${encodeURIComponent(levelIdentifier)}` 
+                }).catch(() => {
+                    this.$router.push({ 
+                        name: 'level', 
+                        params: { name: levelIdentifier, id: levelIdentifier } 
+                    });
+                });
+            } else {
+                window.location.hash = `#/level/${encodeURIComponent(levelIdentifier)}`;
             }
         },
 
-        // РАСЧЕТ ОЧКОВ: Топ-1 = 1000pt, Самый последний лвл = 1pt
         getPoints(rank) {
             if (!rank || rank <= 0) return 0;
             const maxPoints = 1000;
@@ -279,9 +287,6 @@ export default {
                     this.list = [];
                 }
 
-                if (this.list.length > 0) {
-                    this.selectedLevel = this.list[0];
-                }
                 this.hasUnsavedChanges = false;
             } catch (e) {
                 console.error("Data load error:", e);
@@ -321,7 +326,7 @@ export default {
 
             const cleanedYtid = extractYouTubeId(this.levelForm.ytid);
 
-            if (this.isEditing) {
+            if (this.isEditing && this.selectedLevel) {
                 this.selectedLevel.name = this.levelForm.name;
                 this.selectedLevel.author = this.levelForm.author;
                 this.selectedLevel.verifier = this.levelForm.verifier;
@@ -338,7 +343,6 @@ export default {
                     records: []
                 };
                 this.list.push(newLvl);
-                this.selectedLevel = newLvl;
             }
 
             this.showLevelModal = false;
@@ -353,7 +357,6 @@ export default {
                     this.list.forEach((item, i) => {
                         item.rank = i + 1;
                     });
-                    this.selectedLevel = this.list.length > 0 ? this.list[0] : null;
                     this.hasUnsavedChanges = true;
                 }
             }
