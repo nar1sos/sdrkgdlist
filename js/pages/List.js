@@ -35,6 +35,16 @@ function extractYouTubeId(urlOrId) {
     return str;
 }
 
+// Преобразование кода страны (RU, US, UA и т.д.) в флаг Emoji
+function getCountryFlag(countryCode) {
+    if (!countryCode || countryCode.length !== 2) return '🌐';
+    const codePoints = countryCode
+        .toUpperCase()
+        .split('')
+        .map(char => 127397 + char.charCodeAt(0));
+    return String.fromCodePoint(...codePoints);
+}
+
 export default {
     components: { Spinner },
     template: `
@@ -107,6 +117,7 @@ export default {
                             v-for="(level, index) in filteredList" 
                             :key="level.name + index"
                             class="gdl-level-card"
+                            :class="{ active: selectedLevel && selectedLevel.name === level.name }"
                             @click="openLevel(level)"
                             :draggable="isAdmin && !searchQuery"
                             @dragstart="onDragStart($event, index)"
@@ -138,17 +149,94 @@ export default {
                         </div>
                     </div>
 
-                    <!-- ПРАВАЯ КОЛОНКА -->
+                    <!-- ПРАВАЯ КОЛОНКА (ПЛАШКА С ИНФОРМАЦИЕЙ И ВИКТОРАМИ) -->
                     <div class="gdl-details-container">
-                        <div class="gdl-level-detail-box" style="min-height: 250px;">
-                            <!-- Пустая плашка -->
+                        <div v-if="selectedLevel" class="gdl-level-detail-box">
+                            
+                            <!-- Видео плейер -->
+                            <div class="detail-video" v-if="extractYouTubeId(selectedLevel.ytid)">
+                                <iframe 
+                                    :src="'https://www.youtube.com/embed/' + extractYouTubeId(selectedLevel.ytid)" 
+                                    frameborder="0" 
+                                    allowfullscreen
+                                    style="width: 100%; height: 210px; border-radius: 8px;"
+                                ></iframe>
+                            </div>
+
+                            <!-- Шапка с информацией о уровне -->
+                            <div style="margin-top: 15px;">
+                                <h2 style="font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 4px;">
+                                    #{{ selectedLevel.rank }} - {{ selectedLevel.name }}
+                                </h2>
+                                <p style="color: #94a3b8; font-size: 14px;">
+                                    Создатель: <strong style="color: #f3f4f6;">{{ selectedLevel.author }}</strong>
+                                </p>
+                                <p v-if="selectedLevel.verifier" style="color: #94a3b8; font-size: 14px; margin-top: 2px;">
+                                    Верификатор: <strong style="color: #f3f4f6;">{{ selectedLevel.verifier }}</strong>
+                                </p>
+                                <p style="color: #38bdf8; font-weight: 700; margin-top: 6px;">
+                                    Очки за прохождение: {{ getPoints(selectedLevel.rank) }} pt
+                                </p>
+                            </div>
+
+                            <!-- Админские кнопки редактирования/удаления -->
+                            <div v-if="isAdmin" style="display: flex; gap: 8px; margin-top: 12px;">
+                                <button @click="openEditModal(selectedLevel)" style="flex:1; padding: 6px 12px; background: #3b82f6; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 12px;">
+                                    ✏️ Изменить
+                                </button>
+                                <button @click="deleteLevel(selectedLevel)" style="flex:1; padding: 6px 12px; background: #ef4444; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 12px;">
+                                    🗑️ Удалить
+                                </button>
+                            </div>
+
+                            <hr style="border: 0; border-top: 1px solid #283044; margin: 18px 0;" />
+
+                            <!-- СЕКЦИЯ ВИКТОРОВ (ПРОШДШИХ УРОВЕНЬ) -->
+                            <div class="victors-section">
+                                <h3 style="font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                                    <span>🏆 Викторы</span>
+                                    <span style="font-size: 12px; background: #1e293b; color: #94a3b8; padding: 2px 8px; border-radius: 12px;">
+                                        {{ levelVictors.length }}
+                                    </span>
+                                </h3>
+
+                                <div v-if="levelVictors.length > 0" class="victors-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto; padding-right: 4px;">
+                                    <div 
+                                        v-for="(victor, idx) in levelVictors" 
+                                        :key="idx" 
+                                        style="display: flex; align-items: center; justify-content: space-between; background: #111827; padding: 8px 12px; border-radius: 8px; border: 1px solid #1f2937;"
+                                    >
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <span style="font-size: 16px;">{{ getFlag(victor.country) }}</span>
+                                            <span style="color: #f3f4f6; font-weight: 600; font-size: 14px;">{{ victor.user || victor.name || victor.player }}</span>
+                                        </div>
+
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <span style="color: #22c55e; font-weight: 800; font-size: 13px;">{{ victor.percent || 100 }}%</span>
+                                            <a v-if="victor.link || victor.hz" :href="victor.link" target="_blank" style="color: #38bdf8; text-decoration: none; font-size: 12px;">
+                                                🔗 {{ victor.hz ? victor.hz + 'Hz' : 'Видео' }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div v-else style="color: #64748b; font-size: 13px; font-style: italic; text-align: center; padding: 20px 0;">
+                                    Пока нет записанных рекордов
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Заглушка, если уровень не выбран -->
+                        <div v-else class="gdl-level-detail-box" style="display: flex; align-items: center; justify-content: center; min-height: 300px; color: #64748b;">
+                            Выберите уровень для просмотра информации
                         </div>
                     </div>
 
                 </div>
             </template>
 
-            <!-- МОДАЛЬНОЕ ОКНО -->
+            <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ/ДОБАВЛЕНИЯ -->
             <div v-if="showLevelModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;" @click.self="showLevelModal = false">
                 <div style="background: #161b26; border: 1px solid #283044; padding: 24px; border-radius: 12px; width: 100%; max-width: 450px; color: #fff;">
                     <h3 style="margin-bottom: 15px;">{{ isEditing ? 'Редактировать уровень' : 'Добавить новый уровень' }}</h3>
@@ -201,6 +289,17 @@ export default {
                 (item.name && item.name.toLowerCase().includes(q)) ||
                 (item.author && item.author.toLowerCase().includes(q))
             );
+        },
+
+        // Берем список викторов выбранного уровня
+        levelVictors() {
+            if (!this.selectedLevel) return [];
+            
+            // Проверяем, есть ли поле records или victors у уровня
+            const records = this.selectedLevel.records || this.selectedLevel.victors || [];
+            
+            // Сортируем: 100% выше, чем остальные проценты
+            return [...records].sort((a, b) => (b.percent || 100) - (a.percent || 100));
         }
     },
 
@@ -214,19 +313,17 @@ export default {
     },
 
     methods: {
-        // Переход на единый шаблон Level.js
+        extractYouTubeId,
+        
+        // Преобразование кода страны в флаг
+        getFlag(countryCode) {
+            return getCountryFlag(countryCode);
+        },
+
+        // Открытие информации в ПРАВОЙ ПЛАШКЕ
         openLevel(level) {
             if (!level) return;
-            const levelName = typeof level === 'string' ? level : level.name;
-            
-            if (this.$router) {
-                // Переходим по имени роута 'level', передавая название в параметр :name
-                this.$router.push({ name: 'level', params: { name: levelName } }).catch(() => {
-                    this.$router.push({ path: `/level/${encodeURIComponent(levelName)}` });
-                });
-            } else {
-                window.location.hash = `#/level/${encodeURIComponent(levelName)}`;
-            }
+            this.selectedLevel = level;
         },
 
         getPoints(rank) {
@@ -239,10 +336,6 @@ export default {
 
             const score = maxPoints - (rank - 1) * ((maxPoints - minPoints) / (totalLevels - 1));
             return Math.round(score * 100) / 100;
-        },
-
-        parseYtId(input) {
-            return extractYouTubeId(input);
         },
 
         updateAdminState() {
@@ -273,14 +366,19 @@ export default {
                 if (Array.isArray(loadedList)) {
                     this.list = loadedList.map((item, index) => {
                         if (typeof item === 'string') {
-                            return { name: item, author: 'Unknown', rank: index + 1, records: item.records || [] };
+                            return { name: item, author: 'Unknown', rank: index + 1, records: [] };
                         } else if (typeof item === 'object' && item !== null) {
-                            return { ...item, rank: index + 1, records: item.records || [] };
+                            return { ...item, rank: index + 1, records: item.records || item.victors || [] };
                         }
                         return { name: "Unknown", rank: index + 1, records: [] };
                     });
                 } else {
                     this.list = [];
+                }
+
+                // По умолчанию выбираем первый уровень в списке
+                if (this.list.length > 0 && !this.selectedLevel) {
+                    this.selectedLevel = this.list[0];
                 }
 
                 this.hasUnsavedChanges = false;
@@ -339,6 +437,7 @@ export default {
                     records: []
                 };
                 this.list.push(newLvl);
+                this.selectedLevel = newLvl;
             }
 
             this.showLevelModal = false;
@@ -353,6 +452,7 @@ export default {
                     this.list.forEach((item, i) => {
                         item.rank = i + 1;
                     });
+                    this.selectedLevel = this.list[0] || null;
                     this.hasUnsavedChanges = true;
                 }
             }
@@ -406,7 +506,7 @@ export default {
                     ytid: extractYouTubeId(item.ytid),
                     thumbnail: item.thumbnail || '',
                     percentToQualify: item.percentToQualify || 100,
-                    records: item.records || []
+                    records: item.records || item.victors || []
                 }));
 
                 const jsonString = JSON.stringify(cleanData, null, 4);
