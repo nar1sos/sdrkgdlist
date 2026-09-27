@@ -439,7 +439,11 @@
         "name": "MrVadimas",
         "country": "https://1330.ru/images/watermarked/1/detailed/12/3182.jpg",
         "avatar": "https://yt3.googleusercontent.com/GbVmXCWCaQye8QB7fWjnsmqU6q3-GMFFkQSlul5kV3pUBMJEuHm6P_1bv7P3uXgNNRpOZBZ0JA=s160-c-k-c0x00ffffff-no-rj",
-        "records": [],
+        "records": [
+            "Sonic Wave",
+            "Erebus",
+            "Celestial Force"
+        ],
         "verified": []
     },
     {
