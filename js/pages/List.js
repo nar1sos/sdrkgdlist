@@ -214,22 +214,18 @@ export default {
     },
 
     methods: {
-        // Переход на страницу уровня Level.js
+        // Переход на единый шаблон Level.js
         openLevel(level) {
             if (!level) return;
-            const levelIdentifier = level.name || level.id;
-
+            const levelName = typeof level === 'string' ? level : level.name;
+            
             if (this.$router) {
-                this.$router.push({ 
-                    path: `/level/${encodeURIComponent(levelIdentifier)}` 
-                }).catch(() => {
-                    this.$router.push({ 
-                        name: 'level', 
-                        params: { name: levelIdentifier, id: levelIdentifier } 
-                    });
+                // Переходим по имени роута 'level', передавая название в параметр :name
+                this.$router.push({ name: 'level', params: { name: levelName } }).catch(() => {
+                    this.$router.push({ path: `/level/${encodeURIComponent(levelName)}` });
                 });
             } else {
-                window.location.hash = `#/level/${encodeURIComponent(levelIdentifier)}`;
+                window.location.hash = `#/level/${encodeURIComponent(levelName)}`;
             }
         },
 
