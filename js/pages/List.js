@@ -108,7 +108,7 @@ export default {
                             :key="level.name + index"
                             class="gdl-level-card"
                             :class="{ active: selectedLevel && selectedLevel.name === level.name }"
-                            @click="selectedLevel = level"
+                            @click="openLevel(level)"
                             :draggable="isAdmin && !searchQuery"
                             @dragstart="onDragStart($event, index)"
                             @dragover.prevent
@@ -139,45 +139,10 @@ export default {
                         </div>
                     </div>
 
-                    <!-- ПРАВАЯ КОЛОНКА -->
-                    <div class="gdl-details-container" v-if="selectedLevel">
-                        <div class="gdl-level-detail-box">
-                            <h2 class="detail-title">#{{ selectedLevel.rank }} - {{ selectedLevel.name }}</h2>
-
-                            <div class="authors-clean-block">
-                                <div class="author-item">
-                                    <span class="author-label">Создатель</span>
-                                    <span class="author-val">{{ selectedLevel.author }}</span>
-                                </div>
-                                <div class="author-item" v-if="selectedLevel.verifier">
-                                    <span class="author-label">Верификатор</span>
-                                    <span class="author-val">{{ selectedLevel.verifier }}</span>
-                                </div>
-                                
-                                <div class="author-item">
-                                    <span class="author-label">Очки за прохождение</span>
-                                    <span class="author-val" style="color: #38bdf8; font-weight: 800;">
-                                        {{ getPoints(selectedLevel.rank) }} pt
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div v-if="isAdmin" style="margin-bottom: 15px; display: flex; gap: 8px;">
-                                <button @click="openEditModal(selectedLevel)" style="flex: 2; background: #3b82f6; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 800; cursor: pointer;">
-                                    ✏️ Редактировать
-                                </button>
-                                <button @click="deleteLevel(selectedLevel)" style="flex: 1; background: #ef4444; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 800; cursor: pointer;">
-                                    🗑️ Удалить
-                                </button>
-                            </div>
-
-                            <div class="video-wrapper" v-if="selectedLevel.ytid">
-                                <iframe 
-                                    :src="'https://www.youtube.com/embed/' + parseYtId(selectedLevel.ytid)" 
-                                    frameborder="0" 
-                                    allowfullscreen>
-                                </iframe>
-                            </div>
+                    <!-- ПРАВАЯ КОЛОНКА (Оставлена пустой плашкой) -->
+                    <div class="gdl-details-container">
+                        <div class="gdl-level-detail-box" style="min-height: 250px;">
+                            <!-- Пустая плашка -->
                         </div>
                     </div>
 
@@ -250,6 +215,15 @@ export default {
     },
 
     methods: {
+        // Переход на страницу уровня
+        openLevel(level) {
+            this.selectedLevel = level;
+            const levelName = typeof level === 'string' ? level : level.name;
+            if (this.$router) {
+                this.$router.push({ name: 'level', params: { name: levelName } });
+            }
+        },
+
         // РАСЧЕТ ОЧКОВ: Топ-1 = 1000pt, Самый последний лвл = 1pt
         getPoints(rank) {
             if (!rank || rank <= 0) return 0;
