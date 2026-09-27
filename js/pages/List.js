@@ -21,7 +21,6 @@ function base64ToUtf8(str) {
     return new TextDecoder().decode(bytes);
 }
 
-// Универсальная функция парсинга YouTube ID
 function extractYouTubeId(urlOrId) {
     if (!urlOrId) return '';
     const str = urlOrId.trim();
@@ -55,7 +54,6 @@ export default {
                         <button v-if="searchQuery" class="clear-btn" @click="searchQuery = ''">✕</button>
                     </div>
 
-                    <!-- КНОПКА РУЧНОГО СОХРАНЕНИЯ НА GITHUB -->
                     <button 
                         v-if="isAdmin" 
                         @click="saveListToGitHub" 
@@ -78,7 +76,7 @@ export default {
                 <!-- 2. СЕТКА КОНТЕНТА -->
                 <div class="gdl-content-grid">
                     
-                    <!-- ЛЕВАЯ КОЛОНКА (Инфо и правила) -->
+                    <!-- ЛЕВАЯ КОЛОНКА -->
                     <div class="gdl-left-column">
                         <div class="gdl-meta-box">
                             <h3>Редакторы списка</h3>
@@ -97,7 +95,7 @@ export default {
                         </div>
                     </div>
 
-                    <!-- ЦЕНТРАЛЬНАЯ КОЛОНКА (Список уровней) -->
+                    <!-- ЦЕНТРАЛЬНАЯ КОЛОНКА -->
                     <div class="gdl-cards-container">
                         <div v-if="isAdmin" style="margin-bottom: 10px;">
                             <button @click="openAddModal" style="width: 100%; padding: 10px; background: #22c55e; color: #fff; border: none; border-radius: 8px; font-weight: 800; cursor: pointer;">
@@ -130,7 +128,6 @@ export default {
                                     от <span>{{ level.author }}</span>
                                 </div>
                                 
-                                <!-- ОТОБРАЖЕНИЕ ПОИНТОВ В КАРТОЧКЕ -->
                                 <div class="level-points" style="font-size: 13px; font-weight: 700; color: #38bdf8; margin-top: 4px;">
                                     🏆 {{ getPoints(level.rank) }} pt
                                 </div>
@@ -142,7 +139,7 @@ export default {
                         </div>
                     </div>
 
-                    <!-- ПРАВАЯ КОЛОНКА (Детали выбранного уровня) -->
+                    <!-- ПРАВАЯ КОЛОНКА -->
                     <div class="gdl-details-container" v-if="selectedLevel">
                         <div class="gdl-level-detail-box">
                             <h2 class="detail-title">#{{ selectedLevel.rank }} - {{ selectedLevel.name }}</h2>
@@ -157,7 +154,6 @@ export default {
                                     <span class="author-val">{{ selectedLevel.verifier }}</span>
                                 </div>
                                 
-                                <!-- ОТОБРАЖЕНИЕ ПОИНТОВ В ДЕТАЛЯХ УРОВНЯ -->
                                 <div class="author-item">
                                     <span class="author-label">Очки за прохождение</span>
                                     <span class="author-val" style="color: #38bdf8; font-weight: 800;">
@@ -166,7 +162,6 @@ export default {
                                 </div>
                             </div>
 
-                            <!-- Кнопки управления админа (Редактировать / Удалить) -->
                             <div v-if="isAdmin" style="margin-bottom: 15px; display: flex; gap: 8px;">
                                 <button @click="openEditModal(selectedLevel)" style="flex: 2; background: #3b82f6; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 800; cursor: pointer;">
                                     ✏️ Редактировать
@@ -176,7 +171,6 @@ export default {
                                 </button>
                             </div>
 
-                            <!-- Видео плеер -->
                             <div class="video-wrapper" v-if="selectedLevel.ytid">
                                 <iframe 
                                     :src="'https://www.youtube.com/embed/' + parseYtId(selectedLevel.ytid)" 
@@ -190,7 +184,7 @@ export default {
                 </div>
             </template>
 
-            <!-- МОДАЛЬНОЕ ОКНО: Добавление/Редактирование Уровня -->
+            <!-- МОДАЛЬНОЕ ОКНО -->
             <div v-if="showLevelModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;" @click.self="showLevelModal = false">
                 <div style="background: #161b26; border: 1px solid #283044; padding: 24px; border-radius: 12px; width: 100%; max-width: 450px; color: #fff;">
                     <h3 style="margin-bottom: 15px;">{{ isEditing ? 'Редактировать уровень' : 'Добавить новый уровень' }}</h3>
@@ -256,16 +250,15 @@ export default {
     },
 
     methods: {
-        // Расчет очков: Топ-1 = 1000pt, Самый последний в списке = 0.67pt
+        // РАСЧЕТ ОЧКОВ: Топ-1 = 1000pt, Самый последний лвл = 1pt
         getPoints(rank) {
             if (!rank || rank <= 0) return 0;
             const maxPoints = 1000;
-            const minPoints = 0.67;
+            const minPoints = 1;
             const totalLevels = this.list.length || 1;
 
             if (totalLevels === 1) return maxPoints;
 
-            // Линейная интерполяция от #1 (1000pt) до последнего уровня (0.67pt)
             const score = maxPoints - (rank - 1) * ((maxPoints - minPoints) / (totalLevels - 1));
             return Math.round(score * 100) / 100;
         },
