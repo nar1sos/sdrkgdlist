@@ -980,7 +980,12 @@
         "name": "BurnWhite",
         "country": "https://upload.wikimedia.org/wikipedia/commons/6/61/Flag_of_Feodosia.svg?utm_source=ru.wikipedia.org&utm_campaign=index&utm_content=original",
         "avatar": "https://yt3.googleusercontent.com/WDv31l9VoJhpOKc92llLZiFhjfXLMxu0yohNW6c8D8G37ddWmIdttp4j3P7qgy4HygxWFjwOYLA=s160-c-k-c0x00ffffff-no-rj",
-        "records": [],
+        "records": [
+            "Carcano",
+            "Allegiance",
+            "STRATUS",
+            "Amity"
+        ],
         "verified": []
     }
 ]
