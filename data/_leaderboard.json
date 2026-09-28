@@ -1041,7 +1041,9 @@
         "name": "Marlboro",
         "country": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQfHtAexfCGq0hH3GDGhWJijAsyNRPz3Vt9dNzaoKnLr3tY67aUQt1oAu0&s=10",
         "avatar": "1",
-        "records": [],
+        "records": [
+            "Sakupen Hell"
+        ],
         "verified": []
     }
 ]
