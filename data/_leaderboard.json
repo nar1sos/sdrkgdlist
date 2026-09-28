@@ -914,7 +914,9 @@
         "name": "Fazya",
         "country": "https://1330.ru/images/watermarked/1/detailed/12/3182.jpg",
         "avatar": "1",
-        "records": [],
+        "records": [
+            "Acu"
+        ],
         "verified": []
     }
 ]
