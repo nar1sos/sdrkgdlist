@@ -1026,7 +1026,9 @@
         "name": "JamSlayer",
         "country": "https://1330.ru/images/watermarked/1/detailed/12/3182.jpg",
         "avatar": "https://yt3.googleusercontent.com/0iEhXvqy3zZtd4HGcXLFAVtFUTnx6ZZyJOH50y1qw1zTd_idESJjG8bOGF6qK1yzCx_AbJFM8A=s160-c-k-c0x00ffffff-no-rj",
-        "records": [],
+        "records": [
+            "Bloodbath"
+        ],
         "verified": []
     }
 ]
