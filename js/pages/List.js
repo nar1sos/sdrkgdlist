@@ -83,7 +83,7 @@ export default {
                             <h3>Редакторы списка</h3>
                             <ul class="editors-list">
                                 <li><span>👑</span> NaR1</li>
-                                <li><span>🛡️</span> ThisIsTriskis</li>
+                                <li><span>🛡️</span> ThisIsTriscis</li>
                                 <li><span>🛡️</span> itslafy</li>
                             </ul>
                             
