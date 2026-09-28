@@ -856,7 +856,19 @@
         "name": "ZiClow",
         "country": "https://upload.wikimedia.org/wikipedia/commons/7/75/Simferopol_flag.svg?utm_source=ru.wikipedia.org&utm_campaign=index&utm_content=original",
         "avatar": "https://yt3.googleusercontent.com/VLTCr2Q_8xaXPrUGJ0PMlBpP_e38OJuJlAOku0iu843MUEyonpCeVrCHNyoigQ6q5t68kDGm=s160-c-k-c0x00ffffff-no-rj",
-        "records": [],
+        "records": [
+            "ErebuS",
+            "CHROMA II",
+            "Carcano",
+            "Molten Mercury",
+            "Prismatic Haze",
+            "Bloodbath",
+            "aftermath",
+            "Artificial Dream",
+            "Crowd Control",
+            "The Flawless",
+            "Acu"
+        ],
         "verified": []
     }
 ]
