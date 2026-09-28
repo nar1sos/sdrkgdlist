@@ -65,38 +65,55 @@
     cursor: pointer;
 }
 
-/* 2. ТРЁХКОЛОНОЧНАЯ СЕТКА */
+/* 2. ТРЁХКОЛОНОЧНАЯ СЕТКА (FLEXBOX ДЛЯ КОРРЕКТНОЙ РАБОТЫ STICKY) */
 .gdl-content-grid {
-    display: grid;
-    grid-template-columns: 320px 1fr 440px;
+    display: flex;
     gap: 20px;
-    align-items: stretch;
+    align-items: flex-start; /* Обязательно, чтобы боковые колонки не растягивались во всю высоту */
+    width: 100%;
     flex: 1;
+    position: relative;
 }
 
 @media (max-width: 1200px) {
     .gdl-content-grid {
-        grid-template-columns: 1fr 440px;
+        flex-wrap: wrap;
     }
     .gdl-left-column {
         order: 3;
-        grid-column: span 2;
+        width: 100% !important;
+        position: static !important;
+        max-height: none !important;
+    }
+    .gdl-cards-container {
+        flex: 1;
+    }
+    .gdl-details-container {
+        width: 440px;
     }
 }
 
 @media (max-width: 900px) {
     .gdl-content-grid {
-        grid-template-columns: 1fr;
+        flex-direction: column;
     }
-    .gdl-left-column {
-        grid-column: span 1;
+    .gdl-details-container {
+        width: 100% !important;
+        position: static !important;
+        max-height: none !important;
     }
 }
 
-/* 3. ЛЕВАЯ КОЛОНКА */
+/* 3. ЛЕВАЯ КОЛОНКА (STICKY) */
 .gdl-left-column {
+    width: 320px;
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
 }
 
 .gdl-meta-box {
@@ -106,7 +123,6 @@
     padding: 20px;
     box-sizing: border-box;
     color: #ffffff !important;
-    height: 100%;
     display: flex;
     flex-direction: column;
 }
@@ -174,6 +190,8 @@
 
 /* 4. ЦЕНТРАЛЬНАЯ КОЛОНКА (СПИСОК УРОВНЕЙ) */
 .gdl-cards-container {
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -276,10 +294,16 @@
 .points-min { color: #c084fc !important; font-weight: 800 !important; }
 .points-max { color: #60a5fa !important; font-weight: 900 !important; }
 
-/* 5. ПРАВАЯ КОЛОНКА */
+/* 5. ПРАВАЯ КОЛОНКА (STICKY) */
 .gdl-details-container {
+    width: 440px;
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
 }
 
 .gdl-level-detail-box {
@@ -289,7 +313,6 @@
     padding: 20px;
     box-sizing: border-box;
     color: #ffffff !important;
-    height: 100%;
     display: flex;
     flex-direction: column;
 }
