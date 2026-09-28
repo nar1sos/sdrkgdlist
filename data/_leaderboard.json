@@ -657,7 +657,11 @@
             "Cadrega City",
             "Digital Descent",
             "Artificial Ascent",
-            "Reaper Lair"
+            "Reaper Lair",
+            {
+                "levelName": "RUST",
+                "percent": 68
+            }
         ],
         "verified": [
             "Reaper Lair"
