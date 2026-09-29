@@ -8,15 +8,14 @@ export default {
                     <span class="chip-pulse"></span>
                     CRC DEMONLIST
                 </div>
-                <h1 class="hero-title">ДВ СЛЕЕРСТВО</h1>
+                <h1 class="hero-title">КРК СЛЕЕРСТВО</h1>
                 <p class="hero-subtitle">
-                    Центральный реестр лучших игроков и сложнейших демонов Дальнего Востока.
+                    Центральный реестр лучших игроков и сложнейших демонов Крыма.
                 </p>
                 
                 <div class="hero-actions">
                     <router-link to="/list" class="crc-btn btn-accent">📜 Топ уровней</router-link>
                     <router-link to="/leaderboard" class="crc-btn btn-surface">🏆 Топ игроков</router-link>
-                    <a href="#" class="crc-btn btn-glow">📦 Geode Mod <span class="badge-v">v2.0</span></a>
                 </div>
             </header>
 
@@ -31,8 +30,6 @@ export default {
                     <div class="events-tools">
                         <div class="filter-pill">
                             <button :class="{ active: filterPlatform === 'all' }" @click="filterPlatform = 'all'">Все</button>
-                            <button :class="{ active: filterPlatform === 'PC' }" @click="filterPlatform = 'PC'">💻 PC</button>
-                            <button :class="{ active: filterPlatform === 'Mobile' }" @click="filterPlatform = 'Mobile'">📱 Mobile</button>
                         </div>
 
                         <button v-if="isAdmin" @click="showModal = true" class="crc-btn btn-success">+ Новое событие</button>
