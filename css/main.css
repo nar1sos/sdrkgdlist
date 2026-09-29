@@ -65,7 +65,7 @@ button:hover, .btn:hover {
     padding: 24px 16px;
 }
 
-/* Hero Section */
+/* Hero Section (КРК Слеерство) */
 .crc-hero {
     text-align: center;
     padding: 48px 24px;
@@ -79,9 +79,9 @@ button:hover, .btn:hover {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba(59, 130, 246, 0.12);
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    color: var(--accent-blue);
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: var(--accent-green);
     padding: 6px 14px;
     border-radius: 20px;
     font-size: 12px;
@@ -93,9 +93,9 @@ button:hover, .btn:hover {
 .chip-pulse {
     width: 8px;
     height: 8px;
-    background-color: var(--accent-blue);
+    background-color: var(--accent-green);
     border-radius: 50%;
-    box-shadow: 0 0 8px var(--accent-blue);
+    box-shadow: 0 0 8px var(--accent-green);
 }
 
 .hero-title {
