@@ -12,9 +12,9 @@
     <link rel="stylesheet" href="./css/reset.css">
     <link rel="stylesheet" href="./css/typography.css">
     <link rel="stylesheet" href="./css/main.css">
-    <!-- Убедись, что название файла сопадает с реальным в папке css/pages/ -->
     <link rel="stylesheet" href="./css/pages/list.css">
     <link rel="stylesheet" href="./css/pages/leaderboard.css">
+    <link rel="stylesheet" href="./css/pages/home.css">
 
     <!-- Исправление разметки и стили кнопок -->
     <style>
@@ -59,18 +59,21 @@
             padding: 0 24px;
         }
 
-        /* Картинки не должны вылезать за границы */
         img { max-width: 100%; height: auto; }
 
-        /* Поле поиска */
-        input[type="text"] {
-            background: #191c24;
-            border: 1px solid #2e3545;
+        input[type="text"], input[type="number"], input[type="url"], select {
+            background: #161b26;
+            border: 1px solid #283044;
             color: #fff;
             padding: 10px 14px;
-            border-radius: 6px;
-            margin-bottom: 15px;
+            border-radius: 8px;
             width: 100%;
+            outline: none;
+            font-weight: 700;
+        }
+
+        input:focus, select:focus {
+            border-color: #3b82f6 !important;
         }
     </style>
 
@@ -84,7 +87,8 @@
         <header class="gdl-header">
             <div class="header-container">
                 <nav class="nav-links">
-                    <router-link to="/" class="nav-item">List</router-link>
+                    <router-link to="/" class="nav-item">Home</router-link>
+                    <router-link to="/list" class="nav-item">List</router-link>
                     <router-link to="/leaderboard" class="nav-item">Leaderboard</router-link>
                 </nav>
 
