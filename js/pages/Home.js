@@ -6,7 +6,7 @@ export default {
             <header class="hero-section">
                 <div class="badge-tag">⚡ ОФИЦИАЛЬНЫЙ DEMONLIST</div>
                 <h1 class="hero-title">КРК СЛЕЕРСТВО</h1>
-                <p class="hero-subtitle">Единый рейтинг сильнейших игроков Geometry Dash в Крыму. Добавляйте рекорды и летите вверх в топе лучших игроков крыма!</p>
+                <p class="hero-subtitle">Лист сильнейших игроков Geometry Dash в Крыму. Добавляйте рекорды и летите вверх в топе лучших игроков крыма!</p>
                 
                 <div class="hero-actions">
                     <router-link to="/list" class="btn-home btn-primary-home">📜 Топ демонов</router-link>
