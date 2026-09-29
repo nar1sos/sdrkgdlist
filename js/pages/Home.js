@@ -15,7 +15,7 @@ export default {
                 
                 <div class="hero-actions">
                     <router-link to="/list" class="crc-btn btn-accent">📜 Топ уровней</router-link>
-                    <router-link to="/leaderboard" class="crc-btn btn-surface">🏆 Топ игроков</router-link>
+                    <router-link to="/leaderboard" class="crc-btn btn-surface">🏆 Топ игроков</router-link
                 </div>
             </header>
 
@@ -38,9 +38,9 @@ export default {
 
                 <!-- СЕТКА КАРТОЧЕК -->
                 <div class="activity-grid">
-                    <article v-for="(event, index) in filteredEvents" :key="index" class="activity-card">
+                    <article v-for="(event, index) in filteredEvents" :key="index" class="activity-card verified-card">
                         <!-- Кнопка удаления для админа -->
-                        <button v-if="isAdmin" @click="removeEvent(index)" class="card-delete-btn" title="Удалить карточку">
+                        <button v-if="isAdmin" @click="removeEvent(event)" class="card-delete-btn" title="Удалить карточку">
                             ✕
                         </button>
 
@@ -61,17 +61,12 @@ export default {
                             <div class="level-info">
                                 <h3 class="level-name">{{ event.levelName }}</h3>
                                 <div class="location-info">
-                                    <span>📍 {{ event.location }}</span>
-                                    <span>{{ event.flag }}</span>
+                                    <span v-if="isUrl(event.flag)"><img :src="event.flag" class="flag-img" alt="flag"></span>
+                                    <span v-else>{{ event.flag }}</span>
+                                    <span>{{ event.location }}</span>
                                 </div>
                                 <div class="progress-pill">{{ event.percent }}</div>
                             </div>
-                        </div>
-
-                        <div class="card-action-bar">
-                            <a :href="event.videoUrl" target="_blank" class="watch-link">
-                                <span>▶</span> Смотреть заезд
-                            </a>
                         </div>
                     </article>
                 </div>
@@ -88,12 +83,12 @@ export default {
                     <form @submit.prevent="addEvent" class="modal-form">
                         <div class="form-row">
                             <label>Уровень:</label>
-                            <input v-model="newEvent.levelName" type="text" required placeholder="Acheron">
+                            <input v-model="newEvent.levelName" type="text" required placeholder="Tartarus">
                         </div>
                         <div class="form-grid-2">
                             <div>
                                 <label>Игрок:</label>
-                                <input v-model="newEvent.playerName" type="text" required placeholder="Player">
+                                <input v-model="newEvent.playerName" type="text" required placeholder="bembem">
                             </div>
                             <div>
                                 <label>Платформа:</label>
@@ -106,11 +101,11 @@ export default {
                         <div class="form-grid-2">
                             <div>
                                 <label>Город:</label>
-                                <input v-model="newEvent.location" type="text" required placeholder="Хабаровск">
+                                <input v-model="newEvent.location" type="text" required placeholder="Севастополь">
                             </div>
                             <div>
-                                <label>Флаг:</label>
-                                <input v-model="newEvent.flag" type="text" placeholder="🇷🇺">
+                                <label>Флаг (Эмодзи или URL картинки):</label>
+                                <input v-model="newEvent.flag" type="text" placeholder="🇷🇺 или https://...">
                             </div>
                         </div>
                         <div class="form-grid-3">
@@ -124,21 +119,17 @@ export default {
                             </div>
                             <div>
                                 <label>Дата:</label>
-                                <input v-model="newEvent.date" type="text" placeholder="Сегодня">
+                                <input v-model="newEvent.date" type="text" placeholder="29.09.2026">
                             </div>
                         </div>
                         <div class="form-row">
-                            <label>Ссылка на превью (URL):</label>
+                            <label>Ссылка на превью уровня (URL):</label>
                             <input v-model="newEvent.thumb" type="url" placeholder="https://...">
-                        </div>
-                        <div class="form-row">
-                            <label>Ссылка на видео (YouTube):</label>
-                            <input v-model="newEvent.videoUrl" type="url" placeholder="https://youtube.com/...">
                         </div>
 
                         <div class="modal-footer">
                             <button type="button" @click="showModal = false" class="crc-btn btn-surface">Отмена</button>
-                            <button type="submit" class="crc-btn btn-accent">Опубликовать</button>
+                            <button type="submit" class="crc-btn btn-verified">+ Добавить</button>
                         </div>
                     </form>
                 </div>
@@ -150,43 +141,17 @@ export default {
             isAdmin: sessionStorage.getItem('is_admin') === 'true',
             showModal: false,
             filterPlatform: 'all',
-            events: [
-                {
-                    playerName: 'SubtropikiGMD',
-                    device: 'PC',
-                    date: '27 сен.',
-                    rank: 320,
-                    levelName: 'Femboy Fantasy',
-                    location: 'Южно-Сахалинск',
-                    flag: '🇷🇺',
-                    percent: '100%',
-                    thumb: '',
-                    videoUrl: 'https://youtube.com'
-                },
-                {
-                    playerName: 'pinum',
-                    device: 'PC',
-                    date: '27 сен.',
-                    rank: 254,
-                    levelName: 'MY SONG',
-                    location: 'Владивосток',
-                    flag: '🇷🇺',
-                    percent: '100%',
-                    thumb: '',
-                    videoUrl: 'https://youtube.com'
-                }
-            ],
+            events: [],
             newEvent: {
                 levelName: '',
                 playerName: '',
                 device: 'PC',
                 location: '',
-                flag: '🇷🇺',
+                flag: '📍',
                 rank: '',
                 percent: '100%',
-                date: '',
-                thumb: '',
-                videoUrl: ''
+                date: '29.09.2026',
+                thumb: ''
             }
         };
     },
@@ -196,24 +161,61 @@ export default {
             return this.events.filter(e => e.device === this.filterPlatform);
         }
     },
+    created() {
+        this.loadEvents();
+    },
     mounted() {
         window.addEventListener('admin-state-changed', () => {
             this.isAdmin = sessionStorage.getItem('is_admin') === 'true';
         });
     },
     methods: {
-        addEvent() {
-            this.events.unshift({ ...this.newEvent });
-            this.showModal = false;
-            this.newEvent = { levelName: '', playerName: '', device: 'PC', location: '', flag: '🇷🇺', rank: '', percent: '100%', date: '', thumb: '', videoUrl: '' };
-        },
-        removeEvent(index) {
-            if (confirm("Удалить эту карточку из ленты?")) {
-                const targetEvent = this.filteredEvents[index];
-                const realIndex = this.events.indexOf(targetEvent);
-                if (realIndex !== -1) {
-                    this.events.splice(realIndex, 1);
+        loadEvents() {
+            const saved = localStorage.getItem('crc_events');
+            if (saved) {
+                try {
+                    this.events = JSON.parse(saved);
+                } catch (e) {
+                    this.events = this.getDefaultEvents();
                 }
+            } else {
+                this.events = this.getDefaultEvents();
+                this.saveEvents();
+            }
+        },
+        getDefaultEvents() {
+            return [
+                {
+                    id: Date.now(),
+                    playerName: 'bembem',
+                    device: 'PC',
+                    date: '29.09.2026',
+                    rank: 15,
+                    levelName: 'Tartarus',
+                    location: 'Севастополь',
+                    flag: '📍',
+                    percent: '100%',
+                    thumb: ''
+                }
+            ];
+        },
+        saveEvents() {
+            localStorage.setItem('crc_events', JSON.stringify(this.events));
+        },
+        isUrl(str) {
+            return typeof str === 'string' && (str.startsWith('http://') || str.startsWith('https://'));
+        },
+        addEvent() {
+            const item = { ...this.newEvent, id: Date.now() };
+            this.events.unshift(item);
+            this.saveEvents();
+            this.showModal = false;
+            this.newEvent = { levelName: '', playerName: '', device: 'PC', location: '', flag: '📍', rank: '', percent: '100%', date: '29.09.2026', thumb: '' };
+        },
+        removeEvent(targetEvent) {
+            if (confirm("Удалить эту карточку из ленты?")) {
+                this.events = this.events.filter(e => e.id !== targetEvent.id && e !== targetEvent);
+                this.saveEvents();
             }
         }
     }
