@@ -90,7 +90,7 @@ export default {
                             <div class="rules-section">
                                 <h3>Правила</h3>
                                 <ul class="rules-list">
-                                    <li><strong>1.</strong> Принимаются только рекорды из глобал демон листа (ВОЗМОЖНЫ ИСКЛЮЧЕНИЯ!)</li>
+                                    <li><strong>1.</strong> Принимаются только рекорды из любого листа (Global list, AREDL, Pointercrate) (ВОЗМОЖНЫ ИСКЛЮЧЕНИЯ!)</li>
                                 </ul>
                             </div>
                         </div>
