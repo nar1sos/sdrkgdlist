@@ -1,127 +1,131 @@
 export default {
     name: 'Home',
     template: `
-        <div>
+        <div class="home-container">
             <!-- HERO SECTION -->
-            <header class="hero-section">
-                <div class="badge-tag">⚡ ОФИЦИАЛЬНЫЙ DEMONLIST</div>
-                <h1 class="hero-title">КРК СЛЕЕРСТВО</h1>
-                <p class="hero-subtitle">Лист сильнейших игроков Geometry Dash в Крыму. Добавляйте рекорды и летите вверх в топе лучших игроков крыма!</p>
+            <header class="crc-hero">
+                <div class="hero-chip">
+                    <span class="chip-pulse"></span>
+                    CRC DEMONLIST
+                </div>
+                <h1 class="hero-title">ДВ СЛЕЕРСТВО</h1>
+                <p class="hero-subtitle">
+                    Центральный реестр лучших игроков и сложнейших демонов Дальнего Востока.
+                </p>
                 
                 <div class="hero-actions">
-                    <router-link to="/list" class="btn-home btn-primary-home">📜 Топ демонов</router-link>
-                    <router-link to="/leaderboard" class="btn-home btn-secondary-home">🏆 Топ игроков</router-link>
+                    <router-link to="/list" class="crc-btn btn-accent">📜 Топ уровней</router-link>
+                    <router-link to="/leaderboard" class="crc-btn btn-surface">🏆 Топ игроков</router-link>
+                    <a href="#" class="crc-btn btn-glow">📦 Geode Mod <span class="badge-v">v2.0</span></a>
                 </div>
             </header>
 
-            <!-- POSLEDNIE SOBYTIYA -->
-            <main class="events-section">
-                <div class="events-header">
-                    <div class="events-title-block">
-                        <h2>Последние события</h2>
-                        <p>Свежие прохождения и подтверждённые рекорды игроков Дальнего Востока</p>
+            <!-- СОБЫТИЯ -->
+            <main class="events-wrapper">
+                <div class="events-head">
+                    <div>
+                        <h2 class="section-title">Лента активности</h2>
+                        <p class="section-desc">Прохождения игроков из крыма за последний месяц</p>
                     </div>
 
-                    <div class="events-controls">
-                        <div class="filter-group">
-                            <button class="filter-btn" :class="{ active: filterPlatform === 'all' }" @click="filterPlatform = 'all'">Все</button>
-                            <button class="filter-btn" :class="{ active: filterPlatform === 'PC' }" @click="filterPlatform = 'PC'">💻 ПК</button>
-                            <button class="filter-btn" :class="{ active: filterPlatform === 'Mobile' }" @click="filterPlatform = 'Mobile'">📱 Мобайл</button>
-                        </div>
-
-                        <!-- Кнопка только для Админа -->
-                        <button v-if="isAdmin" @click="showModal = true" class="btn-home btn-admin-home">+ Добавить событие</button>
+                    <div class="events-tools">
+                        <button v-if="isAdmin" @click="showModal = true" class="crc-btn btn-success">+ Новое событие</button>
                     </div>
                 </div>
 
-                <!-- Сетка событий -->
-                <div class="events-grid">
-                    <div v-for="(event, index) in filteredEvents" :key="index" class="event-card">
-                        <div class="card-top">
-                            <div class="user-meta">
-                                <span class="user-name">{{ event.playerName }}</span>
-                                <span class="device-tag">{{ event.device === 'PC' ? '💻 PC' : '📱 Mobile' }}</span>
+                <!-- СЕТКА КАРТОЧЕК -->
+                <div class="activity-grid">
+                    <article v-for="(event, index) in events" :key="index" class="activity-card">
+                        <!-- Кнопка удаления только для админа -->
+                        <button v-if="isAdmin" @click="removeEvent(index)" class="card-delete-btn" title="Удалить карточку">
+                            ✕
+                        </button>
+
+                        <div class="card-header-bar">
+                            <div class="player-info">
+                                <span class="player-nick">{{ event.playerName }}</span>
                             </div>
-                            <span class="event-date">{{ event.date }}</span>
+                            <time class="event-time">{{ event.date }}</time>
                         </div>
 
-                        <div class="card-main">
-                            <div class="thumb-box">
-                                <span class="rank-badge">#{{ event.rank }}</span>
-                                <img :src="event.thumb || 'https://via.placeholder.com/150x85'" alt="Preview">
+                        <div class="card-body-content">
+                            <div class="preview-frame">
+                                <span class="rank-tag">#{{ event.rank }}</span>
+                                <img :src="event.thumb || 'https://via.placeholder.com/300x160/1a202c/ffffff?text=No+Image'" alt="Preview">
                             </div>
-                            <div class="card-details">
-                                <h3 class="level-title">{{ event.levelName }}</h3>
-                                <div class="location-tag">📍 {{ event.location }} <span class="flag">{{ event.flag }}</span></div>
-                                <div class="percent-badge">{{ event.percent }}</div>
+
+                            <div class="level-info">
+                                <h3 class="level-name">{{ event.levelName }}</h3>
+                                <div class="location-info">
+                                    <span>📍 {{ event.location }}</span>
+                                    <span>{{ event.flag }}</span>
+                                </div>
+                                <div class="progress-pill">{{ event.percent }}</div>
                             </div>
                         </div>
 
-                        <div class="card-footer">
-                            <a :href="event.videoUrl" target="_blank" class="yt-link">▶ Смотреть видео</a>
+                        <div class="card-action-bar">
+                            <a :href="event.videoUrl" target="_blank" class="watch-link">
+                                <span>▶</span> Смотреть заезд
+                            </a>
                         </div>
-                    </div>
+                    </article>
                 </div>
             </main>
 
-            <!-- МОДАЛЬНОЕ ОКНО АДМИНА -->
-            <div v-if="showModal" class="modal-overlay">
-                <div class="modal-box">
-                    <h3>Добавить новое событие</h3>
-                    <form @submit.prevent="addEvent">
-                        <div class="form-group">
-                            <label>Название уровня:</label>
-                            <input v-model="newEvent.levelName" type="text" required placeholder="например, Tidal Wave">
+            <!-- МОДАЛКА ДОБАВЛЕНИЯ -->
+            <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
+                <div class="modal-window">
+                    <div class="modal-header">
+                        <h3>Добавить запись в ленту</h3>
+                        <button @click="showModal = false" class="close-btn">✕</button>
+                    </div>
+                    
+                    <form @submit.prevent="addEvent" class="modal-form">
+                        <div class="form-row">
+                            <label>Уровень:</label>
+                            <input v-model="newEvent.levelName" type="text" required placeholder="Acheron">
                         </div>
-                        <div class="form-group grid-2">
-                            <div>
-                                <label>Ник игрока:</label>
-                                <input v-model="newEvent.playerName" type="text" required placeholder="pinum">
-                            </div>
-                            <div>
-                                <label>Платформа:</label>
-                                <select v-model="newEvent.device">
-                                    <option value="PC">💻 PC</option>
-                                    <option value="Mobile">📱 Mobile</option>
-                                </select>
-                            </div>
+                        <div class="form-row">
+                            <label>Игрок:</label>
+                            <input v-model="newEvent.playerName" type="text" required placeholder="Player">
                         </div>
-                        <div class="form-group grid-2">
+                        <div class="form-grid-2">
                             <div>
-                                <label>Место прохождения:</label>
-                                <input v-model="newEvent.location" type="text" required placeholder="Южно-Сахалинск">
+                                <label>Город:</label>
+                                <input v-model="newEvent.location" type="text" required placeholder="Симферополь">
                             </div>
                             <div>
-                                <label>Флаг (эмодзи):</label>
-                                <input v-model="newEvent.flag" type="text" placeholder="🇷🇺">
+                                <label>Флаг:</label>
+                                <input v-model="newEvent.flag" type="text" placeholder="🏴">
                             </div>
                         </div>
-                        <div class="form-group grid-3">
+                        <div class="form-grid-3">
                             <div>
-                                <label>Ранг (#):</label>
-                                <input v-model="newEvent.rank" type="number" placeholder="1">
+                                <label>Ранг в топе (#):</label>
+                                <input v-model="newEvent.rank" type="number" placeholder="15">
                             </div>
                             <div>
-                                <label>Процент (%):</label>
+                                <label>Прогресс:</label>
                                 <input v-model="newEvent.percent" type="text" placeholder="100%">
                             </div>
                             <div>
                                 <label>Дата:</label>
-                                <input v-model="newEvent.date" type="text" placeholder="27 сен.">
+                                <input v-model="newEvent.date" type="text" placeholder="Сегодня">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label>Превью уровня (URL):</label>
+                        <div class="form-row">
+                            <label>Ссылка на превью (URL):</label>
                             <input v-model="newEvent.thumb" type="url" placeholder="https://...">
                         </div>
-                        <div class="form-group">
-                            <label>Видео (YouTube URL):</label>
+                        <div class="form-row">
+                            <label>Ссылка на видео (YouTube):</label>
                             <input v-model="newEvent.videoUrl" type="url" placeholder="https://youtube.com/...">
                         </div>
 
-                        <div class="modal-actions">
-                            <button type="button" @click="showModal = false" class="btn-home btn-secondary-home">Отмена</button>
-                            <button type="submit" class="btn-home btn-primary-home">Сохранить</button>
+                        <div class="modal-footer">
+                            <button type="button" @click="showModal = false" class="crc-btn btn-surface">Отмена</button>
+                            <button type="submit" class="crc-btn btn-accent">Опубликовать</button>
                         </div>
                     </form>
                 </div>
@@ -132,39 +136,35 @@ export default {
         return {
             isAdmin: sessionStorage.getItem('is_admin') === 'true',
             showModal: false,
-            filterPlatform: 'all',
             events: [
                 {
                     playerName: 'SubtropikiGMD',
-                    device: 'PC',
                     date: '27 сен.',
                     rank: 320,
                     levelName: 'Femboy Fantasy',
-                    location: 'Южно-Сахалинск',
-                    flag: '🇷🇺',
+                    location: 'Севастополь',
+                    flag: '🏴',
                     percent: '100%',
-                    thumb: 'https://via.placeholder.com/150x85',
+                    thumb: '',
                     videoUrl: 'https://youtube.com'
                 },
                 {
                     playerName: 'pinum',
-                    device: 'PC',
                     date: '27 сен.',
                     rank: 254,
                     levelName: 'MY SONG',
-                    location: 'Владивосток',
-                    flag: '🇷🇺',
+                    location: 'Ялта',
+                    flag: '🏴',
                     percent: '100%',
-                    thumb: 'https://via.placeholder.com/150x85',
+                    thumb: '',
                     videoUrl: 'https://youtube.com'
                 }
             ],
             newEvent: {
                 levelName: '',
                 playerName: '',
-                device: 'PC',
                 location: '',
-                flag: '🇷🇺',
+                flag: '🏴',
                 rank: '',
                 percent: '100%',
                 date: '',
@@ -172,12 +172,6 @@ export default {
                 videoUrl: ''
             }
         };
-    },
-    computed: {
-        filteredEvents() {
-            if (this.filterPlatform === 'all') return this.events;
-            return this.events.filter(e => e.device === this.filterPlatform);
-        }
     },
     mounted() {
         window.addEventListener('admin-state-changed', () => {
@@ -188,7 +182,12 @@ export default {
         addEvent() {
             this.events.unshift({ ...this.newEvent });
             this.showModal = false;
-            this.newEvent = { levelName: '', playerName: '', device: 'PC', location: '', flag: '🇷🇺', rank: '', percent: '100%', date: '', thumb: '', videoUrl: '' };
+            this.newEvent = { levelName: '', playerName: '', location: '', flag: '🏴', rank: '', percent: '100%', date: '', thumb: '', videoUrl: '' };
+        },
+        removeEvent(index) {
+            if (confirm("Удалить эту карточку из ленты?")) {
+                this.events.splice(index, 1);
+            }
         }
     }
 };
