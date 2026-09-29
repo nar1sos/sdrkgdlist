@@ -1,11 +1,13 @@
+import Home from './pages/Home.js';
 import List from './pages/List.js';
 import Leaderboard from './pages/Leaderboard.js';
 import Login from './pages/login.js';
 
 const routes = [
-    { path: '/', component: List },
+    { path: '/', component: Home },            // Главная страница ("/") теперь отдает Home
+    { path: '/list', component: List },        // Страница списка уровней доступна по "/list"
     { path: '/leaderboard', component: Leaderboard },
-    { path: '/login', component: Login },
+    { path: '/login', component: Login }
 ];
 
 const router = VueRouter.createRouter({
