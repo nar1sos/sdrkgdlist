@@ -1989,6 +1989,15 @@
         "records": []
     },
     {
+        "name": "Bored Walk",
+        "author": "DracoZeon",
+        "verifier": "V1N",
+        "ytid": "",
+        "thumbnail": "https://i.ytimg.com/vi/OSl398d0XAc/maxresdefault.jpg",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
         "name": "Back On Track",
         "author": "cherryteam",
         "verifier": "siliciumcat",
@@ -2208,7 +2217,7 @@
         "name": "the reward",
         "author": "vit12",
         "verifier": "Trick",
-        "ytid": "SP35IpM5Tmc",
+        "ytid": "",
         "thumbnail": "https://i.ytimg.com/vi/SP35IpM5Tmc/maxresdefault.jpg",
         "percentToQualify": 100,
         "records": []
