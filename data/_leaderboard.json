@@ -124,7 +124,12 @@
         "name": "r0zetka",
         "country": "",
         "avatar": "https://pbs.twimg.com/profile_images/1869956413721640961/FCwRZ0Pv_400x400.jpg",
-        "records": [],
+        "records": [
+            {
+                "levelName": "Avernus",
+                "percent": 41
+            }
+        ],
         "verified": []
     }
 ]
