@@ -84,7 +84,10 @@
         "name": "KinoBi",
         "country": "az",
         "avatar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyQOpyrXpii0Mkf-c14iBzSUYo1ekTKPRxQ2zi23aaFsrT7cs6EOd37wDI&s=10",
-        "records": [],
+        "records": [
+            "hot rod",
+            "Dora Dura"
+        ],
         "verified": []
     }
 ]
