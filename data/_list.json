@@ -162,6 +162,24 @@
         "records": []
     },
     {
+        "name": "AKIRA",
+        "author": "Unknown",
+        "verifier": "",
+        "ytid": "",
+        "thumbnail": "https://i.ytimg.com/vi/qrDlguAyKTw/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLA0TN_AZ6JhAvujzqRZ8nI6JcrCDA",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "MIKA",
+        "author": "Unknown",
+        "verifier": "",
+        "ytid": "",
+        "thumbnail": "https://i.ytimg.com/vi/KBK-dWcRz4E/hqdefault.jpg?sqp=-oaymwEnCNACELwBSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLC9ZRDDHchJaB5DboPpzULWRe8qxw",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
         "name": "YATAGARASU",
         "author": "Unknown",
         "verifier": "",
