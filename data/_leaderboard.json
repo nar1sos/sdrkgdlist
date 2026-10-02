@@ -74,7 +74,9 @@
         "name": "mursa1r",
         "country": "ru",
         "avatar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR29hAs6FrqmEfSOxA4cNfiwaCCU32HrwGfgaFdtdXgCNXowH8pYx9BfbZ1&s=10",
-        "records": [],
+        "records": [
+            "Kuzureta"
+        ],
         "verified": []
     }
 ]
