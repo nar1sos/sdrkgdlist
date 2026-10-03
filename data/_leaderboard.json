@@ -152,12 +152,7 @@
         "name": "KonVI",
         "country": "ua",
         "avatar": "https://i.pinimg.com/736x/50/77/1f/50771f45b1c015cfbb8b0853ba7b8521.jpg",
-        "records": [
-            {
-                "levelName": "Looping The rooms",
-                "percent": 39
-            }
-        ],
+        "records": [],
         "verified": []
     }
 ]
