@@ -152,7 +152,48 @@
         "name": "KonVI",
         "country": "ua",
         "avatar": "https://i.pinimg.com/736x/50/77/1f/50771f45b1c015cfbb8b0853ba7b8521.jpg",
-        "records": [],
+        "records": [
+            {
+                "levelName": "Looping The rooms",
+                "percent": 39
+            },
+            {
+                "levelName": "Aquamarine",
+                "percent": 39
+            },
+            {
+                "levelName": "SnowBound",
+                "percent": 39
+            },
+            {
+                "levelName": "AKIRA",
+                "percent": 39
+            },
+            {
+                "levelName": "MIKA",
+                "percent": 39
+            },
+            {
+                "levelName": "YATAGARASU",
+                "percent": 39
+            },
+            {
+                "levelName": "SONIC WAVE",
+                "percent": 39
+            },
+            {
+                "levelName": "hot rod",
+                "percent": 39
+            },
+            {
+                "levelName": "BloodBath",
+                "percent": 39
+            },
+            {
+                "levelName": "Dora Dura",
+                "percent": 39
+            }
+        ],
         "verified": []
     }
 ]
