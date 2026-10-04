@@ -36,20 +36,20 @@
         "records": []
     },
     {
-        "name": "Ashley Wave Trials",
-        "author": "Unknown",
-        "verifier": "",
-        "ytid": "",
-        "thumbnail": "https://i.ytimg.com/vi/D9Zic4JItqU/hqdefault.jpg",
-        "percentToQualify": 100,
-        "records": []
-    },
-    {
         "name": "Looping The rooms",
         "author": "Unknown",
         "verifier": "",
         "ytid": "",
         "thumbnail": "https://i.ytimg.com/vi/WRlfrPqyUo4/hqdefault.jpg",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Ashley Wave Trials",
+        "author": "Unknown",
+        "verifier": "",
+        "ytid": "",
+        "thumbnail": "https://i.ytimg.com/vi/D9Zic4JItqU/hqdefault.jpg",
         "percentToQualify": 100,
         "records": []
     },
