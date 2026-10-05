@@ -36,7 +36,9 @@
         "name": "NaR1",
         "country": "ua",
         "avatar": "https://i.pinimg.com/236x/6a/27/3c/6a273cf613885cfa9ec9b9e167ce426b.jpg",
-        "records": [],
+        "records": [
+            "GRIEF : 96-100"
+        ],
         "verified": []
     }
 ]
