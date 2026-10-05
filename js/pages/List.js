@@ -83,14 +83,12 @@ export default {
                             <h3>Редакторы списка</h3>
                             <ul class="editors-list">
                                 <li><span>👑</span> NaR1</li>
-                                <li><span>🛡️</span> ThisIsTriscis</li>
-                                <li><span>🛡️</span> itslafy</li>
                             </ul>
                             
                             <div class="rules-section">
                                 <h3>Правила</h3>
                                 <ul class="rules-list">
-                                    <li><strong>1.</strong> Принимаются только рекорды из любого листа (Global list, AREDL, Pointercrate) (ВОЗМОЖНЫ ИСКЛЮЧЕНИЯ!)</li>
+                                    <li><strong>1.</strong> Не читерите и не будьте ебаклаками :3</li>
                                 </ul>
                             </div>
                         </div>
