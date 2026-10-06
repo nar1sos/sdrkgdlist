@@ -1,10 +1,37 @@
 [
     {
+        "name": "Tantrum",
+        "author": "Unknown",
+        "verifier": "kleVer",
+        "ytid": "",
+        "thumbnail": "https://i.ytimg.com/vi/ZMJiRHKZ2LE/maxresdefault.jpg",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "foggy morning",
+        "author": "Unknown",
+        "verifier": "L1steN",
+        "ytid": "",
+        "thumbnail": "https://i.ytimg.com/vi/6GjmT7COzqc/maxresdefault.jpg",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
         "name": "Leyak",
         "author": "EnZore ",
         "verifier": "L1steN",
         "ytid": "",
         "thumbnail": "https://thumbnails.demonlist.org/classic/1629.png",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "MY SONG",
+        "author": "Unknown",
+        "verifier": "kleVer",
+        "ytid": "",
+        "thumbnail": "https://i.ytimg.com/vi/FUdV8xfmDPs/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBU7VRdY3FHMNvWJuxWUQnNotS2-Q",
         "percentToQualify": 100,
         "records": []
     },
