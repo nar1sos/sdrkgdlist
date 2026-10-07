@@ -1,11 +1,16 @@
+// js/main.js
+
 import List from './pages/List.js';
 import Leaderboard from './pages/Leaderboard.js';
 import Login from './pages/login.js';
+import { Achievements } from './pages/Achievements.js';
 
 const routes = [
-    { path: '/list', component: List },        // Страница списка уровней доступна по "/list"
+    { path: '/', redirect: '/list' },
+    { path: '/list', component: List },
     { path: '/leaderboard', component: Leaderboard },
-    { path: '/login', component: Login }
+    { path: '/login', component: Login },
+    { path: '/achievements', component: Achievements }
 ];
 
 const router = VueRouter.createRouter({
