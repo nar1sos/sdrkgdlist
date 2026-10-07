@@ -7,7 +7,7 @@ export default {
             isAdmin: sessionStorage.getItem('is_admin') === 'true',
             searchQuery: '',
             selectedTag: 'ALL',
-            mode: 'Classic', // Classic / Platformer
+            mode: 'Classic',
 
             isDragging: false,
             draggedIndex: null,
@@ -177,7 +177,6 @@ export default {
     template: `
         <div class="thal-achievements-layout">
             
-            <!-- Левая часть: Список записей -->
             <div class="thal-main-feed">
                 
                 <div class="feed-sub-header">
@@ -228,7 +227,7 @@ export default {
                     </form>
                 </div>
 
-                <!-- Список карточек (1 в 1 THAL) -->
+                <!-- Список карточек с фоновой картинкой на всю ширину и плавной маской -->
                 <div class="thal-entries-list">
                     <div 
                         v-for="(item, index) in filteredRecords" 
@@ -240,7 +239,13 @@ export default {
                         @dragover.prevent="onCardDragOver(index)"
                         @dragend="onCardDragEnd"
                     >
-                        <!-- Левая тёмная половина -->
+                        <!-- Картинка фоном на всю карточку -->
+                        <img :src="item.banner" class="thal-card-bg-banner" alt="Banner">
+
+                        <!-- Плавное темное затемнение слева -->
+                        <div class="thal-card-overlay"></div>
+
+                        <!-- Текстовый контент слева -->
                         <div class="thal-card-left">
                             <div class="card-rank">{{ item.rank }}</div>
                             <h3 class="card-title">{{ item.title }}</h3>
@@ -265,9 +270,8 @@ export default {
                             </div>
                         </div>
 
-                        <!-- Правая половина — Баннер уровня -->
-                        <div class="thal-card-right">
-                            <img :src="item.banner" class="thal-banner-img" alt="Banner">
+                        <!-- Кнопки справа -->
+                        <div class="thal-card-right-actions">
                             <a v-if="item.video && item.video !== '#'" :href="item.video" target="_blank" class="video-play-btn">▶</a>
                             <button v-if="isAdmin" @click.stop="deleteRecord(item.id)" class="admin-del-btn">🗑️</button>
                         </div>
@@ -280,22 +284,19 @@ export default {
 
             </div>
 
-            <!-- Правая оригинальная боковая панель THAL -->
+            <!-- Боковая панель -->
             <aside class="thal-sidebar">
                 
-                <!-- Тоггл Режима -->
                 <div class="sidebar-mode-toggle">
                     <button :class="['mode-btn', { active: mode === 'Classic' }]" @click="mode = 'Classic'">★ Classic</button>
                     <button :class="['mode-btn', { active: mode === 'Platformer' }]" @click="mode = 'Platformer'">✦ Platformer</button>
                 </div>
 
-                <!-- Слайдеры масштаба -->
                 <div class="sidebar-scale-box">
                     <div class="scale-row"><span>Scale Y</span><input type="range" min="1" max="100" value="50"></div>
                     <div class="scale-row"><span>Scale X</span><input type="range" min="1" max="100" value="50"></div>
                 </div>
 
-                <!-- Сортировка -->
                 <div class="sidebar-sort-box">
                     <div class="sort-label">SORT</div>
                     <div class="sort-selects">
@@ -305,7 +306,6 @@ export default {
                     <label class="projected-check"><input type="checkbox"> Projected ranks</label>
                 </div>
 
-                <!-- Фильтр -->
                 <div class="sidebar-filter-box">
                     <div class="filter-header">
                         <span>FILTER</span>
@@ -316,7 +316,6 @@ export default {
                         <input type="text" v-model="searchQuery" placeholder="Search level or player...">
                     </div>
 
-                    <!-- Сетка тегов в 2 колонки как на скрине -->
                     <div class="tags-grid-two-col">
                         <button 
                             v-for="tag in availableTags" 
@@ -331,7 +330,6 @@ export default {
 
                     <div class="show-all-tags">SHOW ALL TAGS</div>
 
-                    <!-- Дата и длина -->
                     <div class="range-fields">
                         <div class="range-row">
                             <span class="range-lbl">DATE</span>
