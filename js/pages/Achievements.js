@@ -7,40 +7,33 @@ export default {
             isAdmin: sessionStorage.getItem('is_admin') === 'true',
             searchQuery: '',
             selectedTag: 'ALL',
+            mode: 'Classic', // Classic / Platformer
 
-            // Drag and drop для баннера при создании
             isDragging: false,
-
-            // Индексы для перетаскивания карточек рекордов
             draggedIndex: null,
 
             newRecord: {
                 title: '',
                 player: '',
                 flag: 'ru',
+                levelId: '86407629',
                 date: '',
+                length: '3m 58s',
+                ver: '2.2',
                 tags: ['Level', 'Progress'],
                 banner: '',
                 video: ''
             },
 
             availableTags: [
-                'Level',
-                'Challenge',
-                'Low Hertz',
-                'Progress',
-                'Consistency',
-                'Verified',
-                'Rated',
-                'Tentative',
-                'Noclip',
-                'Speedhack',
-                'Mobile',
-                '2 Player',
-                'Miscellaneous',
-                'Outdated Version',
-                'Pending Removal',
-                'Variant'
+                'Level', 'Challenge',
+                'Low Hertz', 'Progress',
+                'Consistency', 'Verified',
+                'Rated', 'Tentative',
+                'Noclip', 'Speedhack',
+                'Mobile', '2 Player',
+                'Miscellaneous', 'Outdated Version',
+                'Pending Removal', 'Variant'
             ],
 
             records: JSON.parse(localStorage.getItem('achievements_records') || '[]')
@@ -87,7 +80,6 @@ export default {
             return `https://flagcdn.com/w40/${flagInput.toLowerCase()}.png`;
         },
 
-        // --- Drag and Drop карточек (сортировка мест) ---
         onCardDragStart(index) {
             if (!this.isAdmin) return;
             this.draggedIndex = index;
@@ -96,14 +88,10 @@ export default {
         onCardDragOver(index) {
             if (!this.isAdmin || this.draggedIndex === null || this.draggedIndex === index) return;
             
-            // Меняем местами элементы в массиве
             const movedItem = this.records.splice(this.draggedIndex, 1)[0];
             this.records.splice(index, 0, movedItem);
-            
-            // Обновляем позицию перетаскиваемого
             this.draggedIndex = index;
 
-            // Пересчитываем #ранг для всех
             this.updateRanks();
             this.saveToStorage();
         },
@@ -114,14 +102,13 @@ export default {
 
         updateRanks() {
             this.records.forEach((rec, idx) => {
-                rec.rank = `#${this.records.length - idx}`;
+                rec.rank = `#${idx + 1}`;
             });
         },
 
-        // --- Drag and Drop изображения баннера ---
         handleFileUpload(file) {
             if (!file || !file.type.startsWith('image/')) {
-                alert('Пожалуйста, загрузите изображение!');
+                alert('Загрузите изображение!');
                 return;
             }
             const reader = new FileReader();
@@ -154,15 +141,18 @@ export default {
         addRecord() {
             if (!this.newRecord.title || !this.newRecord.player) return;
 
-            this.records.unshift({
+            this.records.push({
                 id: Date.now(),
                 rank: `#${this.records.length + 1}`,
                 title: this.newRecord.title,
                 player: this.newRecord.player,
                 flag: this.getFlagUrl(this.newRecord.flag),
+                levelId: this.newRecord.levelId || '86407629',
                 date: this.newRecord.date || new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'SHORT', year: '2-digit' }).toUpperCase(),
+                length: this.newRecord.length || '3m 58s',
+                ver: this.newRecord.ver || '2.2',
                 tags: [...this.newRecord.tags],
-                banner: this.newRecord.banner || 'https://via.placeholder.com/800x200/111319/3b82f6',
+                banner: this.newRecord.banner || 'https://via.placeholder.com/800x200/0d1117/3b82f6',
                 video: this.newRecord.video || '#'
             });
 
@@ -172,7 +162,6 @@ export default {
             this.newRecord.title = '';
             this.newRecord.player = '';
             this.newRecord.flag = 'ru';
-            this.newRecord.date = '';
             this.newRecord.banner = '';
             this.newRecord.video = '';
         },
@@ -186,26 +175,31 @@ export default {
         }
     },
     template: `
-        <div class="gdl-achievements-page">
+        <div class="thal-achievements-layout">
             
-            <div class="achievements-feed">
+            <!-- Левая часть: Список записей -->
+            <div class="thal-main-feed">
                 
-                <!-- Админ-панель -->
-                <div v-if="isAdmin" class="admin-panel-card">
-                    <div class="admin-card-title">⚡ АДМИН-ПАНЕЛЬ: ДОБАВИТЬ ЗАПИСЬ</div>
-                    <form @submit.prevent="addRecord" class="admin-form">
-                        <div class="admin-grid">
-                            <input type="text" v-model="newRecord.title" placeholder="Название + Прогресс (напр. Tidal Wave 100%)" required>
-                            <input type="text" v-model="newRecord.player" placeholder="Игрок (напр. NaR1)" required>
-                            <input type="text" v-model="newRecord.flag" placeholder="Флаг (ru, ua, kz)">
-                            <input type="text" v-model="newRecord.date" placeholder="Дата (напр. 22 JUL 26)">
-                            <input type="url" v-model="newRecord.banner" placeholder="URL баннера или используйте Drag & Drop ниже">
+                <div class="feed-sub-header">
+                    <span>{{ filteredRecords.length }} of {{ records.length }} entries</span>
+                </div>
+
+                <!-- Форма Админа -->
+                <div v-if="isAdmin" class="thal-admin-box">
+                    <div class="admin-title">⚡ АДМИН-ПАНЕЛЬ: ДОБАВИТЬ ЗАПИСЬ</div>
+                    <form @submit.prevent="addRecord">
+                        <div class="admin-inputs-grid">
+                            <input type="text" v-model="newRecord.title" placeholder="Название + Прогресс (Tidal Wave 100%)" required>
+                            <input type="text" v-model="newRecord.player" placeholder="Игрок (NaR1)" required>
+                            <input type="text" v-model="newRecord.flag" placeholder="Флаг (ru, ua, us)">
+                            <input type="text" v-model="newRecord.levelId" placeholder="ID уровня (86407629)">
+                            <input type="text" v-model="newRecord.date" placeholder="Дата (5 AUG 26)">
+                            <input type="url" v-model="newRecord.banner" placeholder="URL баннера уровня">
                             <input type="url" v-model="newRecord.video" placeholder="URL видео (YouTube)">
                         </div>
 
-                        <!-- Drag & Drop Зона для загрузки файла баннера -->
                         <div 
-                            class="drop-zone"
+                            class="thal-dropzone"
                             :class="{ 'dragging': isDragging }"
                             @dragover.prevent="isDragging = true"
                             @dragleave.prevent="isDragging = false"
@@ -213,115 +207,149 @@ export default {
                             @click="$refs.fileInput.click()"
                         >
                             <input type="file" ref="fileInput" @change="onFileSelect" accept="image/*" style="display: none;">
-                            <span v-if="!newRecord.banner">Перетащите сюда картинку уровня или кликните для выбора</span>
-                            <span v-else class="drop-preview-success">✓ Картинка загружена! (кликните для замены)</span>
+                            <span v-if="!newRecord.banner">📁 Drag & Drop баннер уровня или кликни для выбора</span>
+                            <span v-else style="color: #22c55e;">✓ Изображение загружено!</span>
                         </div>
 
-                        <!-- Выбор тегов -->
-                        <div class="tag-selector">
-                            <span class="tag-selector-label">Теги:</span>
+                        <div class="admin-tags-picker">
+                            <span class="picker-label">Теги:</span>
                             <button 
                                 type="button" 
                                 v-for="tag in availableTags" 
                                 :key="tag"
-                                :class="['tag-toggle-btn', { active: newRecord.tags.includes(tag) }]"
+                                :class="['admin-tag-btn', { active: newRecord.tags.includes(tag) }]"
                                 @click="toggleTagInForm(tag)"
                             >
                                 {{ tag }}
                             </button>
                         </div>
 
-                        <button type="submit" class="admin-save-btn">Добавить в список</button>
+                        <button type="submit" class="admin-submit-btn">Сохранить рекорд</button>
                     </form>
                 </div>
 
-                <!-- Список плашек (С поддержкой Drag-and-Drop перетаскивания мест) -->
-                <div class="entries-list">
+                <!-- Список карточек (1 в 1 THAL) -->
+                <div class="thal-entries-list">
                     <div 
                         v-for="(item, index) in filteredRecords" 
                         :key="item.id" 
-                        class="entry-card"
-                        :class="{ 'draggable-card': isAdmin, 'is-dragging-card': draggedIndex === index }"
+                        class="thal-card"
+                        :class="{ 'draggable-card': isAdmin, 'is-dragging': draggedIndex === index }"
                         :draggable="isAdmin"
                         @dragstart="onCardDragStart(index)"
                         @dragover.prevent="onCardDragOver(index)"
                         @dragend="onCardDragEnd"
                     >
-                        
-                        <img :src="item.banner" class="entry-full-bg" alt="Banner">
-
-                        <div class="entry-gradient-overlay"></div>
-
-                        <div class="entry-content">
-                            <div class="entry-meta">
-                                <div class="entry-header">
-                                    <span v-if="isAdmin" class="drag-handle-icon" title="Зажми и тащи для смены места">☰</span>
-                                    <span class="entry-rank">{{ item.rank }}</span>
-                                    <h3 class="entry-title">{{ item.title }}</h3>
-                                </div>
-
-                                <div class="entry-player">
-                                    <img :src="item.flag" class="entry-flag" alt="flag">
-                                    <span class="entry-player-name">{{ item.player }}</span>
-                                </div>
-
-                                <div class="entry-subinfo">
-                                    <span class="entry-date">{{ item.date }}</span>
-                                </div>
-
-                                <div class="entry-tags">
-                                    <span v-for="tag in item.tags" :key="tag" class="orange-tag">
-                                        ★ {{ tag }}
-                                    </span>
-                                </div>
+                        <!-- Левая тёмная половина -->
+                        <div class="thal-card-left">
+                            <div class="card-rank">{{ item.rank }}</div>
+                            <h3 class="card-title">{{ item.title }}</h3>
+                            
+                            <div class="card-author">
+                                <span class="by-text">by</span>
+                                <span class="author-name">{{ item.player }}</span>
+                                <img :src="item.flag" class="author-flag" alt="flag">
                             </div>
 
-                            <div class="entry-actions">
-                                <a v-if="item.video && item.video !== '#'" :href="item.video" target="_blank" class="banner-video-link" title="Смотреть">▶</a>
-                                <button v-if="isAdmin" @click.stop="deleteRecord(item.id)" class="banner-delete-btn" title="Удалить">🗑️</button>
+                            <div class="card-stats-row">
+                                <div class="stat-col"><span class="stat-lbl">ID</span><span class="stat-val">{{ item.levelId }}</span></div>
+                                <div class="stat-col"><span class="stat-lbl">DATE</span><span class="stat-val">{{ item.date }}</span></div>
+                                <div class="stat-col"><span class="stat-lbl">LEN</span><span class="stat-val">{{ item.length }}</span></div>
+                                <div class="stat-col"><span class="stat-lbl">VER</span><span class="stat-val">{{ item.ver }}</span></div>
+                            </div>
+
+                            <div class="card-tags-row">
+                                <span v-for="tag in item.tags" :key="tag" class="thal-tag">
+                                    <span class="tag-star">★</span> {{ tag.toUpperCase() }}
+                                </span>
                             </div>
                         </div>
 
+                        <!-- Правая половина — Баннер уровня -->
+                        <div class="thal-card-right">
+                            <img :src="item.banner" class="thal-banner-img" alt="Banner">
+                            <a v-if="item.video && item.video !== '#'" :href="item.video" target="_blank" class="video-play-btn">▶</a>
+                            <button v-if="isAdmin" @click.stop="deleteRecord(item.id)" class="admin-del-btn">🗑️</button>
+                        </div>
                     </div>
 
-                    <div v-if="filteredRecords.length === 0" class="empty-feed">
-                        Записи отсутствуют
+                    <div v-if="filteredRecords.length === 0" class="thal-empty">
+                        Записи не найдены
                     </div>
                 </div>
 
             </div>
 
-            <!-- Сайдбар фильтров -->
-            <aside class="sidebar-filters-panel">
-                <div class="filter-box">
-                    <div class="filter-box-header">
-                        <span class="filter-title">FILTER</span>
-                        <button @click="resetFilters" class="reset-filter-btn">Reset</button>
+            <!-- Правая оригинальная боковая панель THAL -->
+            <aside class="thal-sidebar">
+                
+                <!-- Тоггл Режима -->
+                <div class="sidebar-mode-toggle">
+                    <button :class="['mode-btn', { active: mode === 'Classic' }]" @click="mode = 'Classic'">★ Classic</button>
+                    <button :class="['mode-btn', { active: mode === 'Platformer' }]" @click="mode = 'Platformer'">✦ Platformer</button>
+                </div>
+
+                <!-- Слайдеры масштаба -->
+                <div class="sidebar-scale-box">
+                    <div class="scale-row"><span>Scale Y</span><input type="range" min="1" max="100" value="50"></div>
+                    <div class="scale-row"><span>Scale X</span><input type="range" min="1" max="100" value="50"></div>
+                </div>
+
+                <!-- Сортировка -->
+                <div class="sidebar-sort-box">
+                    <div class="sort-label">SORT</div>
+                    <div class="sort-selects">
+                        <select class="thal-select"><option>Rank</option></select>
+                        <select class="thal-select"><option>Ascending</option></select>
+                    </div>
+                    <label class="projected-check"><input type="checkbox"> Projected ranks</label>
+                </div>
+
+                <!-- Фильтр -->
+                <div class="sidebar-filter-box">
+                    <div class="filter-header">
+                        <span>FILTER</span>
+                        <button @click="resetFilters" class="reset-lnk">Reset</button>
                     </div>
 
-                    <div class="search-field">
-                        <input type="text" v-model="searchQuery" placeholder="Поиск по уровню или игроку...">
+                    <div class="search-input-wrap">
+                        <input type="text" v-model="searchQuery" placeholder="Search level or player...">
                     </div>
 
-                    <div class="filter-section">
-                        <div class="tags-filter-list">
-                            <button 
-                                :class="['tag-filter-btn', { active: selectedTag === 'ALL' }]" 
-                                @click="selectedTag = 'ALL'"
-                            >
-                                Все теги
-                            </button>
-                            <button 
-                                v-for="tag in availableTags" 
-                                :key="tag"
-                                :class="['tag-filter-btn', { active: selectedTag === tag }]" 
-                                @click="selectedTag = (selectedTag === tag ? 'ALL' : tag)"
-                            >
-                                {{ tag }}
-                            </button>
+                    <!-- Сетка тегов в 2 колонки как на скрине -->
+                    <div class="tags-grid-two-col">
+                        <button 
+                            v-for="tag in availableTags" 
+                            :key="tag"
+                            :class="['grid-tag-btn', { active: selectedTag === tag }]"
+                            @click="selectedTag = (selectedTag === tag ? 'ALL' : tag)"
+                        >
+                            <span class="grid-tag-icon">⏹</span>
+                            <span class="grid-tag-text">{{ tag }}</span>
+                        </button>
+                    </div>
+
+                    <div class="show-all-tags">SHOW ALL TAGS</div>
+
+                    <!-- Дата и длина -->
+                    <div class="range-fields">
+                        <div class="range-row">
+                            <span class="range-lbl">DATE</span>
+                            <input type="text" placeholder="From" class="mini-in">
+                            <span class="dash">-</span>
+                            <input type="text" placeholder="To" class="mini-in">
+                        </div>
+                        <div class="range-row">
+                            <span class="range-lbl">LENGTH</span>
+                            <input type="text" placeholder="e.g. 3m" class="mini-in">
+                            <span class="dash">-</span>
+                            <input type="text" placeholder="e.g. 5m" class="mini-in">
                         </div>
                     </div>
                 </div>
+
+                <div class="hide-panel-btn">› HIDE PANEL</div>
+
             </aside>
 
         </div>
