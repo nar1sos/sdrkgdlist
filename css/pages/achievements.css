@@ -2,26 +2,151 @@
 
 .gdl-achievements-page {
     display: flex;
-    gap: 16px;
+    gap: 20px;
     width: 100%;
     align-items: flex-start;
+    color: #ffffff;
+    font-family: inherit;
 }
 
 .achievements-feed {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
     min-width: 0;
 }
 
+/* --- АДМИН ПАНЕЛЬ --- */
+.admin-panel-card {
+    background: #090b10;
+    border: 1px solid #22c55e;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 8px;
+}
+
+.admin-card-title {
+    color: #22c55e;
+    font-weight: 800;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.admin-grid input {
+    background: #121620;
+    border: 1px solid #1e2638;
+    padding: 10px 12px;
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 0.82rem;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.admin-grid input:focus {
+    border-color: #22c55e;
+}
+
+/* Drag & Drop Зона */
+.drop-zone {
+    border: 2px dashed #1e2638;
+    background: #121620;
+    padding: 14px;
+    border-radius: 6px;
+    text-align: center;
+    color: #64748b;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 12px;
+}
+
+.drop-zone:hover, .drop-zone.dragging {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.05);
+    color: #f59e0b;
+}
+
+.drop-preview-success {
+    color: #22c55e;
+}
+
+/* Переключатели тегов в админке */
+.tag-selector {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+.tag-selector-label {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 800;
+    margin-right: 4px;
+}
+
+.tag-toggle-btn {
+    background: #121620;
+    border: 1px solid #1e2638;
+    color: #64748b;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.tag-toggle-btn:hover {
+    border-color: #f59e0b;
+    color: #f59e0b;
+}
+
+.tag-toggle-btn.active {
+    background: rgba(245, 158, 11, 0.18);
+    border-color: #f59e0b;
+    color: #f59e0b;
+}
+
+.admin-save-btn {
+    width: 100%;
+    background: #22c55e;
+    color: #000000;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    font-weight: 900;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background 0.15s ease;
+}
+
+.admin-save-btn:hover {
+    background: #16a34a;
+}
+
+/* --- СПИСОК ПЛАШЕК --- */
 .entries-list {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-/* --- Карточка плашки с полноразмерным баннером --- */
 .entry-card {
     position: relative;
     display: flex;
@@ -30,14 +155,13 @@
     border-radius: 6px;
     overflow: hidden;
     height: 125px;
-    transition: border-color 0.15s ease, transform 0.15s ease;
+    transition: border-color 0.15s ease;
 }
 
 .entry-card:hover {
     border-color: #273146;
 }
 
-/* Стиль для перетаскиваемой карточки (Drag-and-Drop мест) */
 .entry-card.draggable-card {
     cursor: grab;
 }
@@ -47,11 +171,10 @@
 }
 
 .entry-card.is-dragging-card {
-    opacity: 0.35;
+    opacity: 0.3;
     border: 2px dashed #f59e0b;
 }
 
-/* Картинка фоном на всю карточку */
 .entry-full-bg {
     position: absolute;
     top: 0;
@@ -63,19 +186,17 @@
     z-index: 1;
 }
 
-/* Плавный темный градиент слева для читаемости текста */
 .entry-gradient-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, #090b10 35%, rgba(9, 11, 16, 0.82) 55%, rgba(9, 11, 16, 0.1) 100%);
+    background: linear-gradient(90deg, #090b10 38%, rgba(9, 11, 16, 0.8) 58%, rgba(9, 11, 16, 0.1) 100%);
     z-index: 2;
     pointer-events: none;
 }
 
-/* Контент плашки поверх фона */
 .entry-content {
     position: relative;
     z-index: 3;
@@ -83,9 +204,9 @@
     justify-content: space-between;
     width: 100%;
     padding: 12px 16px;
+    box-sizing: border-box;
 }
 
-/* Левый текстовый блок */
 .entry-meta {
     display: flex;
     flex-direction: column;
@@ -102,7 +223,6 @@
 .drag-handle-icon {
     color: #f59e0b;
     font-size: 1rem;
-    margin-right: 2px;
     cursor: grab;
     user-select: none;
 }
@@ -110,7 +230,7 @@
 .entry-rank {
     color: #f59e0b;
     font-weight: 800;
-    font-size: 0.8rem;
+    font-size: 0.82rem;
 }
 
 .entry-title {
@@ -121,14 +241,12 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
 }
 
 .entry-player {
     display: flex;
     align-items: center;
     gap: 6px;
-    margin-top: -2px;
 }
 
 .entry-flag {
@@ -136,14 +254,12 @@
     height: 12px;
     object-fit: cover;
     border-radius: 2px;
-    flex-shrink: 0;
 }
 
 .entry-player-name {
     color: #cbd5e1;
     font-size: 0.8rem;
     font-weight: 700;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
 .entry-subinfo {
@@ -152,7 +268,6 @@
     font-weight: 700;
 }
 
-/* Оранжевые теги */
 .entry-tags {
     display: flex;
     flex-wrap: wrap;
@@ -161,139 +276,4 @@
 
 .orange-tag {
     background: rgba(9, 11, 16, 0.85);
-    border: 1px solid rgba(245, 158, 11, 0.4);
-    color: #f59e0b;
-    font-size: 0.65rem;
-    font-weight: 800;
-    padding: 2px 6px;
-    border-radius: 4px;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    backdrop-filter: blur(4px);
-}
-
-/* Правые действия */
-.entry-actions {
-    display: flex;
-    align-items: flex-end;
-    gap: 8px;
-}
-
-.banner-video-link {
-    background: rgba(0, 0, 0, 0.75);
-    color: #ffffff;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    font-size: 11px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(4px);
-    transition: background 0.2s, border-color 0.2s;
-}
-
-.banner-video-link:hover {
-    background: #3b82f6;
-    border-color: #3b82f6;
-}
-
-.banner-delete-btn {
-    background: rgba(239, 68, 68, 0.85);
-    border: none;
-    color: #fff;
-    border-radius: 4px;
-    padding: 4px 8px;
-    cursor: pointer;
-    font-size: 12px;
-    transition: background 0.2s;
-}
-
-.banner-delete-btn:hover {
-    background: #dc2626;
-}
-
-/* --- Drag and Drop Зона загрузки картинки в форме --- */
-.drop-zone {
-    border: 2px dashed #1e2638;
-    background: #121620;
-    padding: 12px;
-    border-radius: 6px;
-    text-align: center;
-    color: #64748b;
-    font-size: 0.75rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    margin-bottom: 10px;
-}
-
-.drop-zone:hover, .drop-zone.dragging {
-    border-color: #f59e0b;
-    background: rgba(245, 158, 11, 0.05);
-    color: #f59e0b;
-}
-
-.drop-preview-success {
-    color: #22c55e;
-}
-
-/* --- Правая боковая панель фильтров --- */
-.sidebar-filters-panel {
-    width: 280px;
-    flex-shrink: 0;
-}
-
-.filter-box {
-    background: #090b10;
-    border: 1px solid #161b26;
-    border-radius: 6px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.filter-box-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.filter-title {
-    font-size: 0.75rem;
-    font-weight: 900;
-    color: #64748b;
-    letter-spacing: 1px;
-}
-
-.reset-filter-btn {
-    background: none;
-    border: none;
-    color: #64748b;
-    font-size: 0.75rem;
-    font-weight: 700;
-    cursor: pointer;
-    text-decoration: underline;
-}
-
-.reset-filter-btn:hover {
-    color: #f59e0b;
-}
-
-.search-field input {
-    width: 100%;
-    background: #121620;
-    border: 1px solid #1e2638;
-    padding: 8px 12px;
-    border-radius: 6px;
-    color: #fff;
-    font-size: 0.8rem;
-    font-weight: 700;
-    outline: none;
-}
-
-.search-field input:focus {
-    border-color
+    border:
