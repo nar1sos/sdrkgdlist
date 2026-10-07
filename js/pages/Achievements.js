@@ -1,119 +1,111 @@
 // js/pages/Achievements.js
 
-export function renderAchievements() {
-    return `
-        <div class="leaderboard-container">
-            <!-- Левая колонка: Профиль пользователя -->
-            <aside class="profile-card">
-                <div class="profile-header">
-                    <div class="avatar-ring">
-                        <img id="user-avatar" class="profile-avatar" src="https://via.placeholder.com/100" alt="Avatar">
-                    </div>
-                    <div class="profile-title">
-                        <img id="user-flag" class="flag-img" src="https://flagcdn.com/w40/ru.png" alt="Flag">
-                        <h1 id="user-name">Player</h1>
+export const Achievements = {
+    name: 'Achievements',
+    data() {
+        return {
+            searchQuery: '',
+            // Поля формы для подачи нового прогресса
+            newProgress: {
+                level: '',
+                percent: null
+            },
+            // Чистый массив без фейковых рекордов
+            records: []
+        };
+    },
+    computed: {
+        filteredRecords() {
+            if (!this.searchQuery) return this.records;
+            const q = this.searchQuery.toLowerCase();
+            return this.records.filter(r => r.level.toLowerCase().includes(q));
+        }
+    },
+    methods: {
+        submitProgress() {
+            if (!this.newProgress.level || !this.newProgress.percent) return;
+
+            this.records.unshift({
+                id: Date.now(),
+                level: this.newProgress.level,
+                thumb: "https://via.placeholder.com/80x48",
+                percent: parseInt(this.newProgress.percent),
+                status: "pending"
+            });
+
+            // Очистка формы
+            this.newProgress.level = '';
+            this.newProgress.percent = null;
+        }
+    },
+    template: `
+        <div class="achievements-layout" style="display: flex; gap: 24px; align-items: flex-start;">
+            
+            <!-- Левая часть: Статистика и Форма подачи -->
+            <aside style="width: 320px; display: flex; flex-direction: column; gap: 16px;">
+                <div style="background: #141822; border: 1px solid #222938; border-radius: 12px; padding: 20px;">
+                    <div style="background: #1a202e; border: 1px solid #283044; border-radius: 8px; padding: 12px; text-align: center;">
+                        <span style="font-size: 0.75rem; color: #8a94a6; font-weight: 800; display: block; margin-bottom: 4px;">ВСЕГО ПРОГРЕССОВ</span>
+                        <span style="font-size: 1.6rem; font-weight: 900; color: #3b82f6;">{{ records.length }}</span>
                     </div>
                 </div>
 
-                <div class="single-stat-container">
-                    <div class="card-stat">
-                        <span class="stat-icon">🏆</span>
-                        <div class="stat-info">
-                            <span class="val" id="total-records-count">3</span>
-                            <span class="lbl">TOTAL SUBMISSIONS</span>
+                <!-- Форма добавления -->
+                <div style="background: #141822; border: 1px solid #222938; border-radius: 12px; padding: 20px;">
+                    <h3 style="font-size: 1rem; font-weight: 800; color: #fff; margin-bottom: 14px;">ПОДАТЬ ПРОГРЕСС</h3>
+                    <form @submit.prevent="submitProgress" style="display: flex; flex-direction: column; gap: 12px;">
+                        <div>
+                            <label style="font-size: 0.75rem; color: #8a94a6; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 6px;">Уровень</label>
+                            <input type="text" v-model="newProgress.level" placeholder="Название уровня" required>
                         </div>
-                    </div>
+                        <div>
+                            <label style="font-size: 0.75rem; color: #8a94a6; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 6px;">Прогресс (%)</label>
+                            <input type="number" v-model="newProgress.percent" min="1" max="100" placeholder="100" required>
+                        </div>
+                        <button type="submit" style="background: #2563eb; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: 800; cursor: pointer; margin-top: 4px;">
+                            Отправить
+                        </button>
+                    </form>
                 </div>
             </aside>
 
-            <!-- Правая колонка: Список прогрессов -->
-            <section class="achievements-content" style="flex: 2; display: flex; flex-direction: column; gap: 14px;">
+            <!-- Правая часть: Список сдач -->
+            <section class="achievements-content" style="flex: 1; display: flex; flex-direction: column; gap: 16px;">
                 <div class="achievements-header-bar" style="display: flex; justify-content: space-between; align-items: center;">
-                    <h2 style="margin: 0; font-size: 1.4rem; font-weight: 900; color: #fff;">Achievements & Progress List</h2>
+                    <h2 style="font-size: 1.4rem; font-weight: 900; color: #fff; margin: 0;">Achievements</h2>
                     
-                    <div class="search-input-wrapper" style="max-width: 280px;">
-                        <input type="text" id="search-progress" class="gdl-input" placeholder="Поиск по нику или уровню..." style="padding: 8px 12px 8px 36px; font-size: 13px;">
-                        <span class="search-icon" style="left: 10px;">🔍</span>
+                    <div class="achievements-search" style="position: relative; width: 280px;">
+                        <input type="text" v-model="searchQuery" placeholder="Поиск по уровню..." style="padding-left: 36px;">
+                        <span class="search-icon" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: 0.6;">🔍</span>
                     </div>
                 </div>
 
-                <div class="achievements-list-container" id="progress-list" style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
-                    <!-- Карточка 1 -->
-                    <div class="progress-card" style="background: #121824; border: 1px solid #1b2436; border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between;">
-                        <div class="level-info-group" style="display: flex; align-items: center; gap: 14px;">
-                            <img src="https://via.placeholder.com/80x48" class="level-thumb-mini" alt="Thumb" style="width: 80px; height: 48px; border-radius: 6px; object-fit: cover;">
-                            <div style="display: flex; flex-direction: column; gap: 4px;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span style="font-weight: 800; font-size: 1.05rem; color: #fff;">Tidal Wave</span>
-                                    <span class="status-pill status-approved" style="font-size: 0.75rem; font-weight: 800; padding: 3px 8px; border-radius: 4px; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">Одобрено</span>
+                <div class="achievements-list" style="display: flex; flex-direction: column; gap: 12px;">
+                    <div v-for="item in filteredRecords" :key="item.id" class="progress-card">
+                        <div class="level-info-group">
+                            <img :src="item.thumb" class="level-thumb-mini" alt="Thumb">
+                            <div class="level-details">
+                                <div class="level-title-row">
+                                    <span class="level-name">{{ item.level }}</span>
+                                    <span :class="item.status === 'approved' ? 'status-approved' : 'status-pending'" class="status-pill">
+                                        {{ item.status === 'approved' ? 'Одобрено' : 'На проверке' }}
+                                    </span>
                                 </div>
-                                <span style="font-size: 0.82rem; color: #8b9bb4; font-weight: 700;">
-                                    Игрок: <strong style="color: #fff;">Player</strong> • Очки: <strong style="color: #38bdf8;">+120.5 AP</strong>
-                                </span>
                             </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <span class="progress-tag" style="font-size: 1.1rem; font-weight: 900; padding: 4px 10px; border-radius: 6px; background: rgba(192, 132, 252, 0.15); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.3);">36%</span>
-                            <a href="https://youtube.com" target="_blank" class="record-video-btn">▶</a>
+
+                        <div class="progress-right-group">
+                            <span class="progress-tag" :class="item.percent === 100 ? 'progress-100' : 'progress-percent'">
+                                {{ item.percent }}%
+                            </span>
                         </div>
                     </div>
 
-                    <!-- Карточка 2 -->
-                    <div class="progress-card" style="background: #121824; border: 1px solid #1b2436; border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between;">
-                        <div class="level-info-group" style="display: flex; align-items: center; gap: 14px;">
-                            <img src="https://via.placeholder.com/80x48" class="level-thumb-mini" alt="Thumb" style="width: 80px; height: 48px; border-radius: 6px; object-fit: cover;">
-                            <div style="display: flex; flex-direction: column; gap: 4px;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span style="font-weight: 800; font-size: 1.05rem; color: #fff;">Kuzureta</span>
-                                    <span class="status-pill status-approved" style="font-size: 0.75rem; font-weight: 800; padding: 3px 8px; border-radius: 4px; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">Одобрено</span>
-                                </div>
-                                <span style="font-size: 0.82rem; color: #8b9bb4; font-weight: 700;">
-                                    Игрок: <strong style="color: #fff;">Player</strong> • Очки: <strong style="color: #38bdf8;">+85.0 AP</strong>
-                                </span>
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <span class="progress-tag" style="font-size: 1.1rem; font-weight: 900; padding: 4px 10px; border-radius: 6px; background: rgba(192, 132, 252, 0.15); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.3);">49%</span>
-                            <a href="https://youtube.com" target="_blank" class="record-video-btn">▶</a>
-                        </div>
-                    </div>
-
-                    <!-- Карточка 3 -->
-                    <div class="progress-card" style="background: #121824; border: 1px solid #1b2436; border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between;">
-                        <div class="level-info-group" style="display: flex; align-items: center; gap: 14px;">
-                            <img src="https://via.placeholder.com/80x48" class="level-thumb-mini" alt="Thumb" style="width: 80px; height: 48px; border-radius: 6px; object-fit: cover;">
-                            <div style="display: flex; flex-direction: column; gap: 4px;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span style="font-weight: 800; font-size: 1.05rem; color: #fff;">Astrahell</span>
-                                    <span class="status-pill status-approved" style="font-size: 0.75rem; font-weight: 800; padding: 3px 8px; border-radius: 4px; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">Одобрено</span>
-                                </div>
-                                <span style="font-size: 0.82rem; color: #8b9bb4; font-weight: 700;">
-                                    Игрок: <strong style="color: #fff;">Егор</strong> • Очки: <strong style="color: #38bdf8;">+310.0 AP</strong>
-                                </span>
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <span class="progress-tag" style="font-size: 1.1rem; font-weight: 900; padding: 4px 10px; border-radius: 6px; background: rgba(34, 197, 94, 0.15); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3);">100%</span>
-                            <a href="https://youtube.com" target="_blank" class="record-video-btn">▶</a>
-                        </div>
+                    <div v-if="filteredRecords.length === 0" style="text-align: center; color: #8a94a6; padding: 20px; font-weight: 700;">
+                        Записи отсутствуют
                     </div>
                 </div>
             </section>
         </div>
-    `;
-}
-
-export function initAchievements() {
-    // Слушатель для фильтрации поиска
-    const searchInput = document.getElementById('search-progress');
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            const cards = document.querySelectorAll('.progress-card');
-            cards.forEach(card => {
-                const text = card.textContent.toLowerCase();
-                card.style.display = text.includes(query) ? 'flex' : 'none';
-            });
-        });
-    }
-}
+    `
+};
