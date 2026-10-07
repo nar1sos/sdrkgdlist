@@ -3,7 +3,7 @@
 import List from './pages/List.js';
 import Leaderboard from './pages/Leaderboard.js';
 import Login from './pages/login.js';
-import { Achievements } from './pages/Achievements.js';
+import Achievements from './pages/Achievements.js';
 
 const routes = [
     { path: '/', redirect: '/list' },
