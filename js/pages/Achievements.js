@@ -8,29 +8,39 @@ export default {
             searchQuery: '',
             selectedTag: 'ALL',
 
-            // Поля формы админа
+            isDragging: false,
+
             newRecord: {
                 title: '',
                 player: '',
                 flag: 'ru',
                 date: '',
-                tags: ['LEVEL', 'PROGRESS'],
+                tags: ['Level', 'Progress'],
                 banner: '',
                 video: ''
             },
 
-            // Доступные теги
+            // Чистый расширенный список тегов без иконок
             availableTags: [
-                'LEVEL', 
-                'PROGRESS', 
-                'CONSISTENCY', 
-                'VERIFIED', 
-                'NOCLIP', 
-                'TENTATIVE', 
-                '2 PLAYER'
+                'Level',
+                'Challenge',
+                'Low Hertz',
+                'Progress',
+                'Consistency',
+                'Verified',
+                'Rated',
+                'Tentative',
+                'Noclip',
+                'Speedhack',
+                'Mobile',
+                '2 Player',
+                'Miscellaneous',
+                'Outdated Version',
+                'Pending Removal',
+                'Variant'
             ],
 
-            records: []
+            records: JSON.parse(localStorage.getItem('achievements_records') || '[]')
         };
     },
     computed: {
@@ -57,12 +67,44 @@ export default {
             this.isAdmin = sessionStorage.getItem('is_admin') === 'true';
         },
 
+        saveToStorage() {
+            localStorage.setItem('achievements_records', JSON.stringify(this.records));
+        },
+
+        resetFilters() {
+            this.searchQuery = '';
+            this.selectedTag = 'ALL';
+        },
+
         getFlagUrl(flagInput) {
             if (!flagInput) return 'https://flagcdn.com/w40/un.png';
             if (flagInput.startsWith('http://') || flagInput.startsWith('https://')) {
                 return flagInput;
             }
             return `https://flagcdn.com/w40/${flagInput.toLowerCase()}.png`;
+        },
+
+        handleFileUpload(file) {
+            if (!file || !file.type.startsWith('image/')) {
+                alert('Пожалуйста, загрузите изображение!');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.newRecord.banner = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        },
+
+        onFileSelect(e) {
+            const file = e.target.files[0];
+            this.handleFileUpload(file);
+        },
+
+        onDrop(e) {
+            this.isDragging = false;
+            const file = e.dataTransfer.files[0];
+            this.handleFileUpload(file);
         },
 
         toggleTagInForm(tag) {
@@ -89,6 +131,8 @@ export default {
                 video: this.newRecord.video || '#'
             });
 
+            this.saveToStorage();
+
             this.newRecord.title = '';
             this.newRecord.player = '';
             this.newRecord.flag = 'ru';
@@ -100,16 +144,16 @@ export default {
         deleteRecord(id) {
             if (confirm("Удалить этот рекорд?")) {
                 this.records = this.records.filter(r => r.id !== id);
+                this.saveToStorage();
             }
         }
     },
     template: `
         <div class="gdl-achievements-page">
             
-            <!-- Левая колонка со списком рекордов -->
             <div class="achievements-feed">
                 
-                <!-- Админ-панель добавления -->
+                <!-- Админ-панель -->
                 <div v-if="isAdmin" class="admin-panel-card">
                     <div class="admin-card-title">⚡ АДМИН-ПАНЕЛЬ: ДОБАВИТЬ ЗАПИСЬ</div>
                     <form @submit.prevent="addRecord" class="admin-form">
@@ -118,12 +162,27 @@ export default {
                             <input type="text" v-model="newRecord.player" placeholder="Игрок (напр. NaR1)" required>
                             <input type="text" v-model="newRecord.flag" placeholder="Флаг (ru, ua, kz)">
                             <input type="text" v-model="newRecord.date" placeholder="Дата (напр. 22 JUL 26)">
-                            <input type="url" v-model="newRecord.banner" placeholder="URL баннера уровния (16:9 или 21:9)">
+                            <input type="url" v-model="newRecord.banner" placeholder="URL баннера или используйте Drag & Drop ниже">
                             <input type="url" v-model="newRecord.video" placeholder="URL видео (YouTube)">
                         </div>
 
+                        <!-- Drag & Drop Зона -->
+                        <div 
+                            class="drop-zone"
+                            :class="{ 'dragging': isDragging }"
+                            @dragover.prevent="isDragging = true"
+                            @dragleave.prevent="isDragging = false"
+                            @drop.prevent="onDrop"
+                            @click="$refs.fileInput.click()"
+                        >
+                            <input type="file" ref="fileInput" @change="onFileSelect" accept="image/*" style="display: none;">
+                            <span v-if="!newRecord.banner">Перетащите сюда картинку уровня или кликните для выбора</span>
+                            <span v-else class="drop-preview-success">✓ Картинка загружена! (кликните для замены)</span>
+                        </div>
+
+                        <!-- Выбор тегов для админа -->
                         <div class="tag-selector">
-                            <span class="tag-selector-label">Выберите теги:</span>
+                            <span class="tag-selector-label">Теги:</span>
                             <button 
                                 type="button" 
                                 v-for="tag in availableTags" 
@@ -139,38 +198,41 @@ export default {
                     </form>
                 </div>
 
-                <!-- Список плашек (Картинка 2) -->
+                <!-- Список плашек -->
                 <div class="entries-list">
                     <div v-for="item in filteredRecords" :key="item.id" class="entry-card">
                         
-                        <!-- Левая текстовая часть плашки -->
-                        <div class="entry-meta">
-                            <div class="entry-header">
-                                <span class="entry-rank">{{ item.rank }}</span>
-                                <h3 class="entry-title">{{ item.title }}</h3>
+                        <img :src="item.banner" class="entry-full-bg" alt="Banner">
+
+                        <div class="entry-gradient-overlay"></div>
+
+                        <div class="entry-content">
+                            <div class="entry-meta">
+                                <div class="entry-header">
+                                    <span class="entry-rank">{{ item.rank }}</span>
+                                    <h3 class="entry-title">{{ item.title }}</h3>
+                                </div>
+
+                                <div class="entry-player">
+                                    <img :src="item.flag" class="entry-flag" alt="flag">
+                                    <span class="entry-player-name">{{ item.player }}</span>
+                                </div>
+
+                                <div class="entry-subinfo">
+                                    <span class="entry-date">{{ item.date }}</span>
+                                </div>
+
+                                <div class="entry-tags">
+                                    <span v-for="tag in item.tags" :key="tag" class="orange-tag">
+                                        ★ {{ tag }}
+                                    </span>
+                                </div>
                             </div>
 
-                            <div class="entry-player">
-                                <img :src="item.flag" class="entry-flag" alt="flag">
-                                <span class="entry-player-name">{{ item.player }}</span>
+                            <div class="entry-actions">
+                                <a v-if="item.video && item.video !== '#'" :href="item.video" target="_blank" class="banner-video-link" title="Смотреть">▶</a>
+                                <button v-if="isAdmin" @click="deleteRecord(item.id)" class="banner-delete-btn" title="Удалить">🗑️</button>
                             </div>
-
-                            <div class="entry-subinfo">
-                                <span class="entry-date">{{ item.date }}</span>
-                            </div>
-
-                            <div class="entry-tags">
-                                <span v-for="tag in item.tags" :key="tag" class="orange-tag">
-                                    ★ {{ tag }}
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Правая часть — Баннер уровня -->
-                        <div class="entry-banner-wrapper">
-                            <img :src="item.banner" class="entry-banner" alt="Banner">
-                            <a v-if="item.video && item.video !== '#'" :href="item.video" target="_blank" class="banner-video-link" title="Смотреть">▶</a>
-                            <button v-if="isAdmin" @click="deleteRecord(item.id)" class="banner-delete-btn" title="Удалить">🗑️</button>
                         </div>
 
                     </div>
@@ -182,15 +244,19 @@ export default {
 
             </div>
 
-            <!-- Правая боковая панель с фильтрами -->
+            <!-- Сайдбар фильтров -->
             <aside class="sidebar-filters-panel">
                 <div class="filter-box">
+                    <div class="filter-box-header">
+                        <span class="filter-title">FILTER</span>
+                        <button @click="resetFilters" class="reset-filter-btn">Reset</button>
+                    </div>
+
                     <div class="search-field">
                         <input type="text" v-model="searchQuery" placeholder="Поиск по уровню или игроку...">
                     </div>
 
                     <div class="filter-section">
-                        <span class="filter-label">Фильтр по тегу</span>
                         <div class="tags-filter-list">
                             <button 
                                 :class="['tag-filter-btn', { active: selectedTag === 'ALL' }]" 
@@ -202,7 +268,7 @@ export default {
                                 v-for="tag in availableTags" 
                                 :key="tag"
                                 :class="['tag-filter-btn', { active: selectedTag === tag }]" 
-                                @click="selectedTag = tag"
+                                @click="selectedTag = (selectedTag === tag ? 'ALL' : tag)"
                             >
                                 {{ tag }}
                             </button>
