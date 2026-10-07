@@ -291,4 +291,39 @@ export default {
 
             </div>
 
-            <!-- Сайдбар
+            <!-- Сайдбар фильтров -->
+            <aside class="sidebar-filters-panel">
+                <div class="filter-box">
+                    <div class="filter-box-header">
+                        <span class="filter-title">FILTER</span>
+                        <button @click="resetFilters" class="reset-filter-btn">Reset</button>
+                    </div>
+
+                    <div class="search-field">
+                        <input type="text" v-model="searchQuery" placeholder="Поиск по уровню или игроку...">
+                    </div>
+
+                    <div class="filter-section">
+                        <div class="tags-filter-list">
+                            <button 
+                                :class="['tag-filter-btn', { active: selectedTag === 'ALL' }]" 
+                                @click="selectedTag = 'ALL'"
+                            >
+                                Все теги
+                            </button>
+                            <button 
+                                v-for="tag in availableTags" 
+                                :key="tag"
+                                :class="['tag-filter-btn', { active: selectedTag === tag }]" 
+                                @click="selectedTag = (selectedTag === tag ? 'ALL' : tag)"
+                            >
+                                {{ tag }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+    `
+};
