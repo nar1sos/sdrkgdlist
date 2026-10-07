@@ -4,35 +4,49 @@ export default {
     name: 'Achievements',
     data() {
         return {
-            searchQuery: '',
             isAdmin: sessionStorage.getItem('is_admin') === 'true',
-            
-            // Поля формы (видна только админу)
+            searchQuery: '',
+            selectedTag: 'ALL',
+
+            // Поля формы админа
             newRecord: {
-                level: '',
+                title: '',
                 player: '',
-                flag: 'ru', // Двухбуквенный код страны (ru, ua, kz) или полная ссылка на картинку
-                percent: null,
-                thumb: '',
+                flag: 'ru',
+                date: '',
+                tags: ['LEVEL', 'PROGRESS'],
+                banner: '',
                 video: ''
             },
 
-            // Список рекордов (изначально пуст или загружается динамически)
+            // Доступные теги
+            availableTags: [
+                'LEVEL', 
+                'PROGRESS', 
+                'CONSISTENCY', 
+                'VERIFIED', 
+                'NOCLIP', 
+                'TENTATIVE', 
+                '2 PLAYER'
+            ],
+
             records: []
         };
     },
     computed: {
         filteredRecords() {
-            if (!this.searchQuery) return this.records;
-            const q = this.searchQuery.toLowerCase();
-            return this.records.filter(r => 
-                r.level.toLowerCase().includes(q) || 
-                r.player.toLowerCase().includes(q)
-            );
+            return this.records.filter(r => {
+                const matchesSearch = !this.searchQuery || 
+                    r.title.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                    r.player.toLowerCase().includes(this.searchQuery.toLowerCase());
+                
+                const matchesTag = this.selectedTag === 'ALL' || r.tags.includes(this.selectedTag);
+                
+                return matchesSearch && matchesTag;
+            });
         }
     },
     mounted() {
-        // Подписка на изменение статуса админа
         window.addEventListener('admin-state-changed', this.checkAdminStatus);
     },
     unmounted() {
@@ -51,27 +65,35 @@ export default {
             return `https://flagcdn.com/w40/${flagInput.toLowerCase()}.png`;
         },
 
-        addRecord() {
-            if (!this.newRecord.level || !this.newRecord.player || !this.newRecord.percent) return;
+        toggleTagInForm(tag) {
+            const idx = this.newRecord.tags.indexOf(tag);
+            if (idx > -1) {
+                this.newRecord.tags.splice(idx, 1);
+            } else {
+                this.newRecord.tags.push(tag);
+            }
+        },
 
-            const recordData = {
+        addRecord() {
+            if (!this.newRecord.title || !this.newRecord.player) return;
+
+            this.records.unshift({
                 id: Date.now(),
-                level: this.newRecord.level,
+                rank: `#${this.records.length + 1}`,
+                title: this.newRecord.title,
                 player: this.newRecord.player,
                 flag: this.getFlagUrl(this.newRecord.flag),
-                percent: parseInt(this.newRecord.percent),
-                thumb: this.newRecord.thumb || 'https://via.placeholder.com/80x48',
+                date: this.newRecord.date || new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'SHORT', year: '2-digit' }).toUpperCase(),
+                tags: [...this.newRecord.tags],
+                banner: this.newRecord.banner || 'https://via.placeholder.com/800x200/111319/3b82f6',
                 video: this.newRecord.video || '#'
-            };
+            });
 
-            this.records.unshift(recordData);
-
-            // Очистка формы
-            this.newRecord.level = '';
+            this.newRecord.title = '';
             this.newRecord.player = '';
             this.newRecord.flag = 'ru';
-            this.newRecord.percent = null;
-            this.newRecord.thumb = '';
+            this.newRecord.date = '';
+            this.newRecord.banner = '';
             this.newRecord.video = '';
         },
 
@@ -82,98 +104,113 @@ export default {
         }
     },
     template: `
-        <div class="achievements-container">
+        <div class="gdl-achievements-page">
             
-            <!-- Панель админа: Добавление рекорда (видна ТОЛЬКО админу) -->
-            <div v-if="isAdmin" class="admin-add-box">
-                <div class="admin-box-title">
-                    <span>⚡ АДМИН-ПАНЕЛЬ: ДОБАВИТЬ РЕКОРД</span>
-                </div>
-                <form @submit.prevent="addRecord" class="admin-form-grid">
-                    <div class="form-group">
-                        <label>Уровень</label>
-                        <input type="text" v-model="newRecord.level" placeholder="Например: Tidal Wave" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Игрок</label>
-                        <input type="text" v-model="newRecord.player" placeholder="Никнейм игрока" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Код страны (ru, ua, kz) или URL флага</label>
-                        <input type="text" v-model="newRecord.flag" placeholder="ru">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Прогресс (%)</label>
-                        <input type="number" v-model="newRecord.percent" min="1" max="100" placeholder="100" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>URL Превью уровня</label>
-                        <input type="url" v-model="newRecord.thumb" placeholder="https://...">
-                    </div>
-
-                    <div class="form-group">
-                        <label>URL Видео (пруф)</label>
-                        <input type="url" v-model="newRecord.video" placeholder="https://youtube.com/...">
-                    </div>
-
-                    <button type="submit" class="admin-submit-btn">
-                        Добавить рекорд в список
-                    </button>
-                </form>
-            </div>
-
-            <!-- Верхняя панель и поиск -->
-            <div class="achievements-header-bar">
-                <div class="title-block">
-                    <h2>Achievements & Progresses</h2>
-                    <span class="count-badge">{{ records.length }} записей</span>
-                </div>
+            <!-- Левая колонка со списком рекордов -->
+            <div class="achievements-feed">
                 
-                <div class="achievements-search">
-                    <input type="text" v-model="searchQuery" placeholder="Поиск по уровню или игроку...">
-                    <span class="search-icon">🔍</span>
-                </div>
-            </div>
+                <!-- Админ-панель добавления -->
+                <div v-if="isAdmin" class="admin-panel-card">
+                    <div class="admin-card-title">⚡ АДМИН-ПАНЕЛЬ: ДОБАВИТЬ ЗАПИСЬ</div>
+                    <form @submit.prevent="addRecord" class="admin-form">
+                        <div class="admin-grid">
+                            <input type="text" v-model="newRecord.title" placeholder="Название + Прогресс (напр. Tidal Wave 100%)" required>
+                            <input type="text" v-model="newRecord.player" placeholder="Игрок (напр. NaR1)" required>
+                            <input type="text" v-model="newRecord.flag" placeholder="Флаг (ru, ua, kz)">
+                            <input type="text" v-model="newRecord.date" placeholder="Дата (напр. 22 JUL 26)">
+                            <input type="url" v-model="newRecord.banner" placeholder="URL баннера уровния (16:9 или 21:9)">
+                            <input type="url" v-model="newRecord.video" placeholder="URL видео (YouTube)">
+                        </div>
 
-            <!-- Список рекордов -->
-            <div class="achievements-list">
-                <div v-for="item in filteredRecords" :key="item.id" class="progress-card">
-                    <div class="level-info-group">
-                        <img :src="item.thumb" class="level-thumb-mini" alt="Thumb">
-                        <div class="level-details">
-                            <div class="level-title-row">
-                                <span class="level-name">{{ item.level }}</span>
+                        <div class="tag-selector">
+                            <span class="tag-selector-label">Выберите теги:</span>
+                            <button 
+                                type="button" 
+                                v-for="tag in availableTags" 
+                                :key="tag"
+                                :class="['tag-toggle-btn', { active: newRecord.tags.includes(tag) }]"
+                                @click="toggleTagInForm(tag)"
+                            >
+                                {{ tag }}
+                            </button>
+                        </div>
+
+                        <button type="submit" class="admin-save-btn">Добавить в список</button>
+                    </form>
+                </div>
+
+                <!-- Список плашек (Картинка 2) -->
+                <div class="entries-list">
+                    <div v-for="item in filteredRecords" :key="item.id" class="entry-card">
+                        
+                        <!-- Левая текстовая часть плашки -->
+                        <div class="entry-meta">
+                            <div class="entry-header">
+                                <span class="entry-rank">{{ item.rank }}</span>
+                                <h3 class="entry-title">{{ item.title }}</h3>
                             </div>
-                            <div class="player-info-row">
-                                <img :src="item.flag" class="flag-img-small" alt="Flag">
-                                <span class="player-name">{{ item.player }}</span>
+
+                            <div class="entry-player">
+                                <img :src="item.flag" class="entry-flag" alt="flag">
+                                <span class="entry-player-name">{{ item.player }}</span>
+                            </div>
+
+                            <div class="entry-subinfo">
+                                <span class="entry-date">{{ item.date }}</span>
+                            </div>
+
+                            <div class="entry-tags">
+                                <span v-for="tag in item.tags" :key="tag" class="orange-tag">
+                                    ★ {{ tag }}
+                                </span>
                             </div>
                         </div>
+
+                        <!-- Правая часть — Баннер уровня -->
+                        <div class="entry-banner-wrapper">
+                            <img :src="item.banner" class="entry-banner" alt="Banner">
+                            <a v-if="item.video && item.video !== '#'" :href="item.video" target="_blank" class="banner-video-link" title="Смотреть">▶</a>
+                            <button v-if="isAdmin" @click="deleteRecord(item.id)" class="banner-delete-btn" title="Удалить">🗑️</button>
+                        </div>
+
                     </div>
 
-                    <div class="progress-right-group">
-                        <span class="progress-tag" :class="item.percent === 100 ? 'progress-100' : 'progress-percent'">
-                            {{ item.percent }}%
-                        </span>
-                        
-                        <a v-if="item.video && item.video !== '#'" :href="item.video" target="_blank" class="record-video-btn" title="Смотреть прохождение">
-                            ▶
-                        </a>
-
-                        <button v-if="isAdmin" @click="deleteRecord(item.id)" class="delete-record-btn" title="Удалить рекорд">
-                            🗑️
-                        </button>
+                    <div v-if="filteredRecords.length === 0" class="empty-feed">
+                        Записи отсутствуют
                     </div>
                 </div>
 
-                <div v-if="filteredRecords.length === 0" class="empty-state">
-                    Рекорды пока не добавлены
-                </div>
             </div>
+
+            <!-- Правая боковая панель с фильтрами -->
+            <aside class="sidebar-filters-panel">
+                <div class="filter-box">
+                    <div class="search-field">
+                        <input type="text" v-model="searchQuery" placeholder="Поиск по уровню или игроку...">
+                    </div>
+
+                    <div class="filter-section">
+                        <span class="filter-label">Фильтр по тегу</span>
+                        <div class="tags-filter-list">
+                            <button 
+                                :class="['tag-filter-btn', { active: selectedTag === 'ALL' }]" 
+                                @click="selectedTag = 'ALL'"
+                            >
+                                Все теги
+                            </button>
+                            <button 
+                                v-for="tag in availableTags" 
+                                :key="tag"
+                                :class="['tag-filter-btn', { active: selectedTag === tag }]" 
+                                @click="selectedTag = tag"
+                            >
+                                {{ tag }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
         </div>
     `
 };
