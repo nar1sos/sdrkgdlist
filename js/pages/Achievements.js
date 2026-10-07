@@ -1,16 +1,23 @@
 // js/pages/Achievements.js
 
-export const Achievements = {
+export default {
     name: 'Achievements',
     data() {
         return {
             searchQuery: '',
-            // Поля формы для подачи нового прогресса
-            newProgress: {
+            isAdmin: sessionStorage.getItem('is_admin') === 'true',
+            
+            // Поля формы (видна только админу)
+            newRecord: {
                 level: '',
-                percent: null
+                player: '',
+                flag: 'ru', // Двухбуквенный код страны (ru, ua, kz) или полная ссылка на картинку
+                percent: null,
+                thumb: '',
+                video: ''
             },
-            // Чистый массив без фейковых рекордов
+
+            // Список рекордов (изначально пуст или загружается динамически)
             records: []
         };
     },
@@ -18,94 +25,155 @@ export const Achievements = {
         filteredRecords() {
             if (!this.searchQuery) return this.records;
             const q = this.searchQuery.toLowerCase();
-            return this.records.filter(r => r.level.toLowerCase().includes(q));
+            return this.records.filter(r => 
+                r.level.toLowerCase().includes(q) || 
+                r.player.toLowerCase().includes(q)
+            );
         }
     },
+    mounted() {
+        // Подписка на изменение статуса админа
+        window.addEventListener('admin-state-changed', this.checkAdminStatus);
+    },
+    unmounted() {
+        window.removeEventListener('admin-state-changed', this.checkAdminStatus);
+    },
     methods: {
-        submitProgress() {
-            if (!this.newProgress.level || !this.newProgress.percent) return;
+        checkAdminStatus() {
+            this.isAdmin = sessionStorage.getItem('is_admin') === 'true';
+        },
 
-            this.records.unshift({
+        getFlagUrl(flagInput) {
+            if (!flagInput) return 'https://flagcdn.com/w40/un.png';
+            if (flagInput.startsWith('http://') || flagInput.startsWith('https://')) {
+                return flagInput;
+            }
+            return `https://flagcdn.com/w40/${flagInput.toLowerCase()}.png`;
+        },
+
+        addRecord() {
+            if (!this.newRecord.level || !this.newRecord.player || !this.newRecord.percent) return;
+
+            const recordData = {
                 id: Date.now(),
-                level: this.newProgress.level,
-                thumb: "https://via.placeholder.com/80x48",
-                percent: parseInt(this.newProgress.percent),
-                status: "pending"
-            });
+                level: this.newRecord.level,
+                player: this.newRecord.player,
+                flag: this.getFlagUrl(this.newRecord.flag),
+                percent: parseInt(this.newRecord.percent),
+                thumb: this.newRecord.thumb || 'https://via.placeholder.com/80x48',
+                video: this.newRecord.video || '#'
+            };
+
+            this.records.unshift(recordData);
 
             // Очистка формы
-            this.newProgress.level = '';
-            this.newProgress.percent = null;
+            this.newRecord.level = '';
+            this.newRecord.player = '';
+            this.newRecord.flag = 'ru';
+            this.newRecord.percent = null;
+            this.newRecord.thumb = '';
+            this.newRecord.video = '';
+        },
+
+        deleteRecord(id) {
+            if (confirm("Удалить этот рекорд?")) {
+                this.records = this.records.filter(r => r.id !== id);
+            }
         }
     },
     template: `
-        <div class="achievements-layout" style="display: flex; gap: 24px; align-items: flex-start;">
+        <div class="achievements-container">
             
-            <!-- Левая часть: Статистика и Форма подачи -->
-            <aside style="width: 320px; display: flex; flex-direction: column; gap: 16px;">
-                <div style="background: #141822; border: 1px solid #222938; border-radius: 12px; padding: 20px;">
-                    <div style="background: #1a202e; border: 1px solid #283044; border-radius: 8px; padding: 12px; text-align: center;">
-                        <span style="font-size: 0.75rem; color: #8a94a6; font-weight: 800; display: block; margin-bottom: 4px;">ВСЕГО ПРОГРЕССОВ</span>
-                        <span style="font-size: 1.6rem; font-weight: 900; color: #3b82f6;">{{ records.length }}</span>
+            <!-- Панель админа: Добавление рекорда (видна ТОЛЬКО админу) -->
+            <div v-if="isAdmin" class="admin-add-box">
+                <div class="admin-box-title">
+                    <span>⚡ АДМИН-ПАНЕЛЬ: ДОБАВИТЬ РЕКОРД</span>
+                </div>
+                <form @submit.prevent="addRecord" class="admin-form-grid">
+                    <div class="form-group">
+                        <label>Уровень</label>
+                        <input type="text" v-model="newRecord.level" placeholder="Например: Tidal Wave" required>
                     </div>
-                </div>
 
-                <!-- Форма добавления -->
-                <div style="background: #141822; border: 1px solid #222938; border-radius: 12px; padding: 20px;">
-                    <h3 style="font-size: 1rem; font-weight: 800; color: #fff; margin-bottom: 14px;">ПОДАТЬ ПРОГРЕСС</h3>
-                    <form @submit.prevent="submitProgress" style="display: flex; flex-direction: column; gap: 12px;">
-                        <div>
-                            <label style="font-size: 0.75rem; color: #8a94a6; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 6px;">Уровень</label>
-                            <input type="text" v-model="newProgress.level" placeholder="Название уровня" required>
-                        </div>
-                        <div>
-                            <label style="font-size: 0.75rem; color: #8a94a6; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 6px;">Прогресс (%)</label>
-                            <input type="number" v-model="newProgress.percent" min="1" max="100" placeholder="100" required>
-                        </div>
-                        <button type="submit" style="background: #2563eb; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: 800; cursor: pointer; margin-top: 4px;">
-                            Отправить
-                        </button>
-                    </form>
-                </div>
-            </aside>
-
-            <!-- Правая часть: Список сдач -->
-            <section class="achievements-content" style="flex: 1; display: flex; flex-direction: column; gap: 16px;">
-                <div class="achievements-header-bar" style="display: flex; justify-content: space-between; align-items: center;">
-                    <h2 style="font-size: 1.4rem; font-weight: 900; color: #fff; margin: 0;">Achievements</h2>
-                    
-                    <div class="achievements-search" style="position: relative; width: 280px;">
-                        <input type="text" v-model="searchQuery" placeholder="Поиск по уровню..." style="padding-left: 36px;">
-                        <span class="search-icon" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: 0.6;">🔍</span>
+                    <div class="form-group">
+                        <label>Игрок</label>
+                        <input type="text" v-model="newRecord.player" placeholder="Никнейм игрока" required>
                     </div>
-                </div>
 
-                <div class="achievements-list" style="display: flex; flex-direction: column; gap: 12px;">
-                    <div v-for="item in filteredRecords" :key="item.id" class="progress-card">
-                        <div class="level-info-group">
-                            <img :src="item.thumb" class="level-thumb-mini" alt="Thumb">
-                            <div class="level-details">
-                                <div class="level-title-row">
-                                    <span class="level-name">{{ item.level }}</span>
-                                    <span :class="item.status === 'approved' ? 'status-approved' : 'status-pending'" class="status-pill">
-                                        {{ item.status === 'approved' ? 'Одобрено' : 'На проверке' }}
-                                    </span>
-                                </div>
+                    <div class="form-group">
+                        <label>Код страны (ru, ua, kz) или URL флага</label>
+                        <input type="text" v-model="newRecord.flag" placeholder="ru">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Прогресс (%)</label>
+                        <input type="number" v-model="newRecord.percent" min="1" max="100" placeholder="100" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>URL Превью уровня</label>
+                        <input type="url" v-model="newRecord.thumb" placeholder="https://...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>URL Видео (пруф)</label>
+                        <input type="url" v-model="newRecord.video" placeholder="https://youtube.com/...">
+                    </div>
+
+                    <button type="submit" class="admin-submit-btn">
+                        Добавить рекорд в список
+                    </button>
+                </form>
+            </div>
+
+            <!-- Верхняя панель и поиск -->
+            <div class="achievements-header-bar">
+                <div class="title-block">
+                    <h2>Achievements & Progresses</h2>
+                    <span class="count-badge">{{ records.length }} записей</span>
+                </div>
+                
+                <div class="achievements-search">
+                    <input type="text" v-model="searchQuery" placeholder="Поиск по уровню или игроку...">
+                    <span class="search-icon">🔍</span>
+                </div>
+            </div>
+
+            <!-- Список рекордов -->
+            <div class="achievements-list">
+                <div v-for="item in filteredRecords" :key="item.id" class="progress-card">
+                    <div class="level-info-group">
+                        <img :src="item.thumb" class="level-thumb-mini" alt="Thumb">
+                        <div class="level-details">
+                            <div class="level-title-row">
+                                <span class="level-name">{{ item.level }}</span>
+                            </div>
+                            <div class="player-info-row">
+                                <img :src="item.flag" class="flag-img-small" alt="Flag">
+                                <span class="player-name">{{ item.player }}</span>
                             </div>
                         </div>
-
-                        <div class="progress-right-group">
-                            <span class="progress-tag" :class="item.percent === 100 ? 'progress-100' : 'progress-percent'">
-                                {{ item.percent }}%
-                            </span>
-                        </div>
                     </div>
 
-                    <div v-if="filteredRecords.length === 0" style="text-align: center; color: #8a94a6; padding: 20px; font-weight: 700;">
-                        Записи отсутствуют
+                    <div class="progress-right-group">
+                        <span class="progress-tag" :class="item.percent === 100 ? 'progress-100' : 'progress-percent'">
+                            {{ item.percent }}%
+                        </span>
+                        
+                        <a v-if="item.video && item.video !== '#'" :href="item.video" target="_blank" class="record-video-btn" title="Смотреть прохождение">
+                            ▶
+                        </a>
+
+                        <button v-if="isAdmin" @click="deleteRecord(item.id)" class="delete-record-btn" title="Удалить рекорд">
+                            🗑️
+                        </button>
                     </div>
                 </div>
-            </section>
+
+                <div v-if="filteredRecords.length === 0" class="empty-state">
+                    Рекорды пока не добавлены
+                </div>
+            </div>
         </div>
     `
 };
