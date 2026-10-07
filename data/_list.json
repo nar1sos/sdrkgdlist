@@ -1,23 +1,5 @@
 [
     {
-        "name": "Tantrum",
-        "author": "Unknown",
-        "verifier": "kleVer",
-        "ytid": "",
-        "thumbnail": "https://i.ytimg.com/vi/ZMJiRHKZ2LE/maxresdefault.jpg",
-        "percentToQualify": 100,
-        "records": []
-    },
-    {
-        "name": "foggy morning",
-        "author": "Unknown",
-        "verifier": "kleVer",
-        "ytid": "",
-        "thumbnail": "https://i.ytimg.com/vi/6GjmT7COzqc/maxresdefault.jpg",
-        "percentToQualify": 100,
-        "records": []
-    },
-    {
         "name": "Leyak",
         "author": "EnZore ",
         "verifier": "ami",
@@ -36,7 +18,7 @@
         "records": []
     },
     {
-        "name": "Shitty Kocmoc Unleashed : 31-100",
+        "name": "Shitty Kocmoc Unleashed : 68%",
         "author": "...",
         "verifier": "NaR1",
         "ytid": "",
