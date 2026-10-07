@@ -15,32 +15,64 @@
     min-width: 0;
 }
 
-/* Карточка плашки (Точь-в-точь как на картинке 2) */
 .entries-list {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
+/* Карточка плашки с полноразмерным баннером */
 .entry-card {
+    position: relative;
     display: flex;
     background: #090b10;
     border: 1px solid #161b26;
     border-radius: 6px;
     overflow: hidden;
     height: 125px;
-    transition: border-color 0.15s ease, background 0.15s ease;
+    transition: border-color 0.15s ease;
 }
 
 .entry-card:hover {
     border-color: #273146;
-    background: #0d0f17;
+}
+
+/* Картинка фоном на всю карточку */
+.entry-full-bg {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    z-index: 1;
+}
+
+/* Плавный темный градиент слева для читаемости текста */
+.entry-gradient-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #090b10 35%, rgba(9, 11, 16, 0.8) 55%, rgba(9, 11, 16, 0.1) 100%);
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* Контент плашки поверх фона */
+.entry-content {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 16px;
 }
 
 /* Левый текстовый блок */
 .entry-meta {
-    flex: 1;
-    padding: 12px 16px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -67,6 +99,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .entry-player {
@@ -84,18 +117,19 @@
 }
 
 .entry-player-name {
-    color: #94a3b8;
+    color: #cbd5e1;
     font-size: 0.8rem;
     font-weight: 700;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
 .entry-subinfo {
     font-size: 0.72rem;
-    color: #475569;
+    color: #64748b;
     font-weight: 700;
 }
 
-/* Оранжевые теги (CONSISTENCY, VERIFIED, NOCLIP и т.д.) */
+/* Оранжевые теги */
 .entry-tags {
     display: flex;
     flex-wrap: wrap;
@@ -103,8 +137,8 @@
 }
 
 .orange-tag {
-    background: rgba(245, 158, 11, 0.08);
-    border: 1px solid rgba(245, 158, 11, 0.25);
+    background: rgba(9, 11, 16, 0.85);
+    border: 1px solid rgba(245, 158, 11, 0.4);
     color: #f59e0b;
     font-size: 0.65rem;
     font-weight: 800;
@@ -112,34 +146,17 @@
     border-radius: 4px;
     letter-spacing: 0.5px;
     text-transform: uppercase;
+    backdrop-filter: blur(4px);
 }
 
-/* Правый блок с длинным баннером уровня */
-.entry-banner-wrapper {
-    width: 55%;
-    max-width: 580px;
-    position: relative;
-    overflow: hidden;
-    background: #000;
-}
-
-.entry-banner {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0.85;
-    transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.entry-card:hover .entry-banner {
-    opacity: 1;
-    transform: scale(1.02);
+/* Правые действия */
+.entry-actions {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
 }
 
 .banner-video-link {
-    position: absolute;
-    right: 12px;
-    bottom: 12px;
     background: rgba(0, 0, 0, 0.7);
     color: #ffffff;
     width: 28px;
@@ -151,6 +168,7 @@
     text-decoration: none;
     font-size: 11px;
     border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
 }
 
 .banner-video-link:hover {
@@ -159,19 +177,41 @@
 }
 
 .banner-delete-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: rgba(239, 68, 68, 0.8);
+    background: rgba(239, 68, 68, 0.85);
     border: none;
     color: #fff;
     border-radius: 4px;
-    padding: 2px 6px;
+    padding: 4px 8px;
     cursor: pointer;
     font-size: 12px;
 }
 
-/* Правая панель фильтров */
+/* Drag and Drop Зона в админке */
+.drop-zone {
+    border: 2px dashed #1e2638;
+    background: #121620;
+    padding: 12px;
+    border-radius: 6px;
+    text-align: center;
+    color: #64748b;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 10px;
+}
+
+.drop-zone:hover, .drop-zone.dragging {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.05);
+    color: #f59e0b;
+}
+
+.drop-preview-success {
+    color: #22c55e;
+}
+
+/* Сайдбар фильтров */
 .sidebar-filters-panel {
     width: 280px;
     flex-shrink: 0;
@@ -235,7 +275,7 @@
     color: #f59e0b;
 }
 
-/* Форма Админа */
+/* Админка */
 .admin-panel-card {
     background: #090b10;
     border: 1px solid #22c55e;
@@ -255,7 +295,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 8px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 .admin-grid input {
