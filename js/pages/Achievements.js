@@ -8,7 +8,11 @@ export default {
             searchQuery: '',
             selectedTag: 'ALL',
 
+            // Drag and drop для баннера при создании
             isDragging: false,
+
+            // Индексы для перетаскивания карточек рекордов
+            draggedIndex: null,
 
             newRecord: {
                 title: '',
@@ -20,7 +24,6 @@ export default {
                 video: ''
             },
 
-            // Чистый расширенный список тегов без иконок
             availableTags: [
                 'Level',
                 'Challenge',
@@ -84,6 +87,38 @@ export default {
             return `https://flagcdn.com/w40/${flagInput.toLowerCase()}.png`;
         },
 
+        // --- Drag and Drop карточек (сортировка мест) ---
+        onCardDragStart(index) {
+            if (!this.isAdmin) return;
+            this.draggedIndex = index;
+        },
+
+        onCardDragOver(index) {
+            if (!this.isAdmin || this.draggedIndex === null || this.draggedIndex === index) return;
+            
+            // Меняем местами элементы в массиве
+            const movedItem = this.records.splice(this.draggedIndex, 1)[0];
+            this.records.splice(index, 0, movedItem);
+            
+            // Обновляем позицию перетаскиваемого
+            this.draggedIndex = index;
+
+            // Пересчитываем #ранг для всех
+            this.updateRanks();
+            this.saveToStorage();
+        },
+
+        onCardDragEnd() {
+            this.draggedIndex = null;
+        },
+
+        updateRanks() {
+            this.records.forEach((rec, idx) => {
+                rec.rank = `#${this.records.length - idx}`;
+            });
+        },
+
+        // --- Drag and Drop изображения баннера ---
         handleFileUpload(file) {
             if (!file || !file.type.startsWith('image/')) {
                 alert('Пожалуйста, загрузите изображение!');
@@ -101,7 +136,7 @@ export default {
             this.handleFileUpload(file);
         },
 
-        onDrop(e) {
+        onDropBanner(e) {
             this.isDragging = false;
             const file = e.dataTransfer.files[0];
             this.handleFileUpload(file);
@@ -131,6 +166,7 @@ export default {
                 video: this.newRecord.video || '#'
             });
 
+            this.updateRanks();
             this.saveToStorage();
 
             this.newRecord.title = '';
@@ -144,6 +180,7 @@ export default {
         deleteRecord(id) {
             if (confirm("Удалить этот рекорд?")) {
                 this.records = this.records.filter(r => r.id !== id);
+                this.updateRanks();
                 this.saveToStorage();
             }
         }
@@ -166,13 +203,13 @@ export default {
                             <input type="url" v-model="newRecord.video" placeholder="URL видео (YouTube)">
                         </div>
 
-                        <!-- Drag & Drop Зона -->
+                        <!-- Drag & Drop Зона для загрузки файла баннера -->
                         <div 
                             class="drop-zone"
                             :class="{ 'dragging': isDragging }"
                             @dragover.prevent="isDragging = true"
                             @dragleave.prevent="isDragging = false"
-                            @drop.prevent="onDrop"
+                            @drop.prevent="onDropBanner"
                             @click="$refs.fileInput.click()"
                         >
                             <input type="file" ref="fileInput" @change="onFileSelect" accept="image/*" style="display: none;">
@@ -180,7 +217,7 @@ export default {
                             <span v-else class="drop-preview-success">✓ Картинка загружена! (кликните для замены)</span>
                         </div>
 
-                        <!-- Выбор тегов для админа -->
+                        <!-- Выбор тегов -->
                         <div class="tag-selector">
                             <span class="tag-selector-label">Теги:</span>
                             <button 
@@ -198,9 +235,18 @@ export default {
                     </form>
                 </div>
 
-                <!-- Список плашек -->
+                <!-- Список плашек (С поддержкой Drag-and-Drop перетаскивания мест) -->
                 <div class="entries-list">
-                    <div v-for="item in filteredRecords" :key="item.id" class="entry-card">
+                    <div 
+                        v-for="(item, index) in filteredRecords" 
+                        :key="item.id" 
+                        class="entry-card"
+                        :class="{ 'draggable-card': isAdmin, 'is-dragging-card': draggedIndex === index }"
+                        :draggable="isAdmin"
+                        @dragstart="onCardDragStart(index)"
+                        @dragover.prevent="onCardDragOver(index)"
+                        @dragend="onCardDragEnd"
+                    >
                         
                         <img :src="item.banner" class="entry-full-bg" alt="Banner">
 
@@ -209,6 +255,7 @@ export default {
                         <div class="entry-content">
                             <div class="entry-meta">
                                 <div class="entry-header">
+                                    <span v-if="isAdmin" class="drag-handle-icon" title="Зажми и тащи для смены места">☰</span>
                                     <span class="entry-rank">{{ item.rank }}</span>
                                     <h3 class="entry-title">{{ item.title }}</h3>
                                 </div>
@@ -231,7 +278,7 @@ export default {
 
                             <div class="entry-actions">
                                 <a v-if="item.video && item.video !== '#'" :href="item.video" target="_blank" class="banner-video-link" title="Смотреть">▶</a>
-                                <button v-if="isAdmin" @click="deleteRecord(item.id)" class="banner-delete-btn" title="Удалить">🗑️</button>
+                                <button v-if="isAdmin" @click.stop="deleteRecord(item.id)" class="banner-delete-btn" title="Удалить">🗑️</button>
                             </div>
                         </div>
 
@@ -244,39 +291,4 @@ export default {
 
             </div>
 
-            <!-- Сайдбар фильтров -->
-            <aside class="sidebar-filters-panel">
-                <div class="filter-box">
-                    <div class="filter-box-header">
-                        <span class="filter-title">FILTER</span>
-                        <button @click="resetFilters" class="reset-filter-btn">Reset</button>
-                    </div>
-
-                    <div class="search-field">
-                        <input type="text" v-model="searchQuery" placeholder="Поиск по уровню или игроку...">
-                    </div>
-
-                    <div class="filter-section">
-                        <div class="tags-filter-list">
-                            <button 
-                                :class="['tag-filter-btn', { active: selectedTag === 'ALL' }]" 
-                                @click="selectedTag = 'ALL'"
-                            >
-                                Все теги
-                            </button>
-                            <button 
-                                v-for="tag in availableTags" 
-                                :key="tag"
-                                :class="['tag-filter-btn', { active: selectedTag === tag }]" 
-                                @click="selectedTag = (selectedTag === tag ? 'ALL' : tag)"
-                            >
-                                {{ tag }}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </aside>
-
-        </div>
-    `
-};
+            <!-- Сайдбар
