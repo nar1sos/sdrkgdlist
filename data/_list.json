@@ -16,5 +16,32 @@
         "thumbnail": "https://i.ytimg.com/vi/FUdV8xfmDPs/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBU7VRdY3FHMNvWJuxWUQnNotS2-Q",
         "percentToQualify": 100,
         "records": []
+    },
+    {
+        "name": "Nine Circles",
+        "author": "Zobros",
+        "verifier": "kleVer",
+        "ytid": "",
+        "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTrv63OdZDPtR3Ati3VtEsPcL_ttwFGYL3Z1EUvY1OyPRBPsTvHU7nhlHe&s=10",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Skeletal Shenanigans",
+        "author": "YoReid",
+        "verifier": "Shmerlo",
+        "ytid": "",
+        "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqInLMoq-uBC99gQf976lvHL7Bxl_Hjv5m_qnCwUF4Dg&s=10",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "The Nightmare",
+        "author": "JAX",
+        "verifier": "Shmerlo",
+        "ytid": "",
+        "thumbnail": "https://i.ytimg.com/vi/z89-n-1GStc/maxresdefault.jpg",
+        "percentToQualify": 100,
+        "records": []
     }
 ]
