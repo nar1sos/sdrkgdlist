@@ -52,7 +52,10 @@
         "name": "Shmerlo",
         "country": "ru",
         "avatar": "https://i.postimg.cc/WzMJdnSv/Novyj-Holst24564564.png",
-        "records": [],
+        "records": [
+            "Skeletal Shenanigans",
+            "The Nightmare"
+        ],
         "verified": []
     }
 ]
