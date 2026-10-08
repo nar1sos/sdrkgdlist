@@ -42,7 +42,9 @@
         "name": "NaR1",
         "country": "ua",
         "avatar": "https://static.wikia.nocookie.net/geometry-dash/images/0/0d/Terakot.jpg/revision/latest/scale-to-width-down/268?cb=20250822140448&path-prefix=ru",
-        "records": [],
+        "records": [
+            "The Nightmare"
+        ],
         "verified": []
     }
 ]
