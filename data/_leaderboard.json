@@ -54,7 +54,11 @@
         "avatar": "https://i.postimg.cc/WzMJdnSv/Novyj-Holst24564564.png",
         "records": [
             "Skeletal Shenanigans",
-            "The Nightmare"
+            "The Nightmare",
+            {
+                "levelName": "Nine Circles",
+                "percent": 49
+            }
         ],
         "verified": [
             "Skeletal Shenanigans",
