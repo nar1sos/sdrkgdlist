@@ -7,7 +7,6 @@ export default {
             isAdmin: sessionStorage.getItem('is_admin') === 'true',
             searchQuery: '',
             selectedTag: 'ALL',
-            mode: 'Classic',
 
             isDragging: false,
             draggedIndex: null,
@@ -25,15 +24,14 @@ export default {
                 video: ''
             },
 
+            // Оставлены только 6 выбранных тегов
             availableTags: [
-                'Level', 'Challenge',
-                'Low Hertz', 'Progress',
-                'Consistency', 'Verified',
-                'Rated', 'Tentative',
-                'Noclip', 'Speedhack',
-                'Mobile', '2 Player',
-                'Miscellaneous', 'Outdated Version',
-                'Pending Removal', 'Variant'
+                'Level',
+                'Challenge',
+                'Low Hertz',
+                'Progress',
+                'Verified',
+                'Rated'
             ],
 
             records: JSON.parse(localStorage.getItem('achievements_records') || '[]')
@@ -223,11 +221,11 @@ export default {
                             </button>
                         </div>
 
-                        <button type="submit" class="admin-submit-btn">Сохранить рекорд</button>
+                        <button type="submit" class="admin-save-btn">Сохранить рекорд</button>
                     </form>
                 </div>
 
-                <!-- Список карточек с фоновой картинкой на всю ширину и плавной маской -->
+                <!-- Список карточек -->
                 <div class="thal-entries-list">
                     <div 
                         v-for="(item, index) in filteredRecords" 
@@ -239,13 +237,9 @@ export default {
                         @dragover.prevent="onCardDragOver(index)"
                         @dragend="onCardDragEnd"
                     >
-                        <!-- Картинка фоном на всю карточку -->
                         <img :src="item.banner" class="thal-card-bg-banner" alt="Banner">
-
-                        <!-- Плавное темное затемнение слева -->
                         <div class="thal-card-overlay"></div>
 
-                        <!-- Текстовый контент слева -->
                         <div class="thal-card-left">
                             <div class="card-rank">{{ item.rank }}</div>
                             <h3 class="card-title">{{ item.title }}</h3>
@@ -270,7 +264,6 @@ export default {
                             </div>
                         </div>
 
-                        <!-- Кнопки справа -->
                         <div class="thal-card-right-actions">
                             <a v-if="item.video && item.video !== '#'" :href="item.video" target="_blank" class="video-play-btn">▶</a>
                             <button v-if="isAdmin" @click.stop="deleteRecord(item.id)" class="admin-del-btn">🗑️</button>
@@ -284,28 +277,8 @@ export default {
 
             </div>
 
-            <!-- Боковая панель -->
+            <!-- Минималистичная боковая панель: Только Поиск и 6 Тегов -->
             <aside class="thal-sidebar">
-                
-                <div class="sidebar-mode-toggle">
-                    <button :class="['mode-btn', { active: mode === 'Classic' }]" @click="mode = 'Classic'">★ Classic</button>
-                    <button :class="['mode-btn', { active: mode === 'Platformer' }]" @click="mode = 'Platformer'">✦ Platformer</button>
-                </div>
-
-                <div class="sidebar-scale-box">
-                    <div class="scale-row"><span>Scale Y</span><input type="range" min="1" max="100" value="50"></div>
-                    <div class="scale-row"><span>Scale X</span><input type="range" min="1" max="100" value="50"></div>
-                </div>
-
-                <div class="sidebar-sort-box">
-                    <div class="sort-label">SORT</div>
-                    <div class="sort-selects">
-                        <select class="thal-select"><option>Rank</option></select>
-                        <select class="thal-select"><option>Ascending</option></select>
-                    </div>
-                    <label class="projected-check"><input type="checkbox"> Projected ranks</label>
-                </div>
-
                 <div class="sidebar-filter-box">
                     <div class="filter-header">
                         <span>FILTER</span>
@@ -327,27 +300,7 @@ export default {
                             <span class="grid-tag-text">{{ tag }}</span>
                         </button>
                     </div>
-
-                    <div class="show-all-tags">SHOW ALL TAGS</div>
-
-                    <div class="range-fields">
-                        <div class="range-row">
-                            <span class="range-lbl">DATE</span>
-                            <input type="text" placeholder="From" class="mini-in">
-                            <span class="dash">-</span>
-                            <input type="text" placeholder="To" class="mini-in">
-                        </div>
-                        <div class="range-row">
-                            <span class="range-lbl">LENGTH</span>
-                            <input type="text" placeholder="e.g. 3m" class="mini-in">
-                            <span class="dash">-</span>
-                            <input type="text" placeholder="e.g. 5m" class="mini-in">
-                        </div>
-                    </div>
                 </div>
-
-                <div class="hide-panel-btn">› HIDE PANEL</div>
-
             </aside>
 
         </div>
