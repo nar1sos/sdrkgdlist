@@ -43,10 +43,12 @@
         "country": "ua",
         "avatar": "https://static.wikia.nocookie.net/geometry-dash/images/0/0d/Terakot.jpg/revision/latest/scale-to-width-down/268?cb=20250822140448&path-prefix=ru",
         "records": [
-            "The Nightmare",
-            "BUFF THIS"
+            "BUFF THIS",
+            "The Nightmare"
         ],
-        "verified": []
+        "verified": [
+            "BUFF THIS"
+        ]
     },
     {
         "user": "Shmerlo",
