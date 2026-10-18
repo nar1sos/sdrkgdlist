@@ -1,5 +1,14 @@
 [
     {
+        "name": "BLOODBATH",
+        "author": "Riot",
+        "verifier": "NaR1",
+        "ytid": "",
+        "thumbnail": "https://i.redd.it/w55o471lalbe1.png",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
         "name": "Leyak",
         "author": "EnZore ",
         "verifier": "ami",
